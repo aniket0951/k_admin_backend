@@ -1,0 +1,125 @@
+### K-Admin Portal  
+ 
+POST http://192.168.0.119:8000/api/login
+Content-Type: application/json
+Authorization:eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyIjp7ImlkIjoiNjYyOTUyOWVmZTIzNWJmYTQyYTFhNTdjIiwibmFtZSI6IlRlc3RVc2VyIiwiZW1haWwiOiJUZXN0VXNlckBnbWFpbC5jb20iLCJtb2JpbGVfbnVtYmVyIjoiMTIzNDU2Nzg5MCIsInVzZXJfdHlwZSI6IkFkbWluIiwiaXNfYWN0aXZlIjp0cnVlLCJjcmVhdGVkX2F0IjoiMjAyNC0wNC0yNCAxODo0MjozOC41MzEgKzAwOjAwOjAwIiwidXBkYXRlZF9hdCI6IjIwMjQtMDQtMjQgMTg6NDI6MzguNTMxICswMDowMDowMCJ9LCJpYXQiOjE3MTQxMzQwMDcsImV4cCI6MTcxNDEzNzYwN30.rwBkGyYBOm_il3Tk0Npl6UojPPccsczqgUyMa5ZnaU4 
+
+{
+    "email":"TestUser@gmail.com",
+    "password":"test@123"
+}
+
+### Get Users 
+GET  http://localhost:8000/api/users
+Content-Type: application/json
+Authorization:eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyIjp7ImlkIjoiNjYyOTUyOWVmZTIzNWJmYTQyYTFhNTdjIiwibmFtZSI6IlRlc3RVc2VyIFVwZGF0ZSIsImVtYWlsIjoiVGVzdFVzZXJAZ21haWwuY29tIiwibW9iaWxlX251bWJlciI6IjEyMzQ1Njc4OTAiLCJ1c2VyX3R5cGUiOiJBZG1pbiIsImlzX2FjdGl2ZSI6dHJ1ZSwiY3JlYXRlZF9hdCI6IjIwMjQtMDQtMjQgMTg6NDI6MzguNTMxICswMDowMDowMCIsInVwZGF0ZWRfYXQiOiIyMDI0LTA0LTI2IDEyOjI2OjI1LjAzNiArMDA6MDA6MDAifSwiaWF0IjoxNzE0MTk2ODIzLCJleHAiOjE3MTQyMzI4MjN9.oytxy18AyM_GLe45JpryHxkDv0IKXHWZ0hJX4wNJSzw 
+
+### Update Users
+PUT http://localhost:8000/api/user/6629529efe235bfa42a1a57c
+Content-Type: application/json
+Authorization:eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyIjp7ImlkIjoiNjYyOTUyOWVmZTIzNWJmYTQyYTFhNTdjIiwibmFtZSI6IlRlc3RVc2VyIiwiZW1haWwiOiJUZXN0VXNlckBnbWFpbC5jb20iLCJtb2JpbGVfbnVtYmVyIjoiMTIzNDU2Nzg5MCIsInVzZXJfdHlwZSI6IkFkbWluIiwiaXNfYWN0aXZlIjp0cnVlLCJjcmVhdGVkX2F0IjoiMjAyNC0wNC0yNCAxODo0MjozOC41MzEgKzAwOjAwOjAwIiwidXBkYXRlZF9hdCI6IjIwMjQtMDQtMjQgMTg6NDI6MzguNTMxICswMDowMDowMCJ9LCJpYXQiOjE3MTQxMzQwMDcsImV4cCI6MTcxNDEzNzYwN30.rwBkGyYBOm_il3Tk0Npl6UojPPccsczqgUyMa5ZnaU4 
+
+{
+    "name": "TestUser Update",
+    "email": "TestUser@gmail.com",
+    "mobile_number": "1234567890",
+    "is_active": true
+}
+
+### Delete User
+DELETE http://localhost:8000/api/user/662a91e25941e371deb5f7af
+Content-Type: application/json
+Authorization:eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyIjp7ImlkIjoiNjYyOTUyOWVmZTIzNWJmYTQyYTFhNTdjIiwibmFtZSI6IlRlc3RVc2VyIiwiZW1haWwiOiJUZXN0VXNlckBnbWFpbC5jb20iLCJtb2JpbGVfbnVtYmVyIjoiMTIzNDU2Nzg5MCIsInVzZXJfdHlwZSI6IkFkbWluIiwiaXNfYWN0aXZlIjp0cnVlLCJjcmVhdGVkX2F0IjoiMjAyNC0wNC0yNCAxODo0MjozOC41MzEgKzAwOjAwOjAwIiwidXBkYXRlZF9hdCI6IjIwMjQtMDQtMjQgMTg6NDI6MzguNTMxICswMDowMDowMCJ9LCJpYXQiOjE3MTQxMzQwMDcsImV4cCI6MTcxNDEzNzYwN30.rwBkGyYBOm_il3Tk0Npl6UojPPccsczqgUyMa5ZnaU4 
+
+
+
+### ---------------------------     STUDENT REQUETS -------------------------------------------  ### 
+POST http://localhost:8000/api/student/add-student
+Content-Type: application/json
+Authorization:eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyIjp7ImlkIjoiNjYyOTUyOWVmZTIzNWJmYTQyYTFhNTdjIiwibmFtZSI6IlRlc3RVc2VyIFVwZGF0ZSIsImVtYWlsIjoiVGVzdFVzZXJAZ21haWwuY29tIiwibW9iaWxlX251bWJlciI6IjEyMzQ1Njc4OTAiLCJ1c2VyX3R5cGUiOiJBZG1pbiIsImlzX2FjdGl2ZSI6dHJ1ZSwiY3JlYXRlZF9hdCI6IjIwMjQtMDQtMjQgMTg6NDI6MzguNTMxICswMDowMDowMCIsInVwZGF0ZWRfYXQiOiIyMDI0LTA0LTI2IDEyOjI2OjI1LjAzNiArMDA6MDA6MDAifSwiaWF0IjoxNzE0MTQ5NzUxLCJleHAiOjE3MTQxNTMzNTF9.17PUldLwMqd-PIGHu57p8R5AFgxcgLpDvPr2LMWTR6s 
+
+{
+    "name": "Student1",
+    "age": 16, 
+    "dob": "TestUser Update",
+    "address": "TestUser@gmail.com",
+    "class_branch":"BRANCH-1"
+}
+
+### Get Students  
+GET http://192.168.0.119:8000/api/student/get-students
+Content-Type: application/json
+Authorization:eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyIjp7ImlkIjoiNjYyOTUyOWVmZTIzNWJmYTQyYTFhNTdjIiwibmFtZSI6IlRlc3RVc2VyIFVwZGF0ZSIsImVtYWlsIjoiVGVzdFVzZXJAZ21haWwuY29tIiwibW9iaWxlX251bWJlciI6IjEyMzQ1Njc4OTAiLCJ1c2VyX3R5cGUiOiJBZG1pbiIsImlzX2FjdGl2ZSI6dHJ1ZSwiY3JlYXRlZF9hdCI6IjIwMjQtMDQtMjQgMTg6NDI6MzguNTMxICswMDowMDowMCIsInVwZGF0ZWRfYXQiOiIyMDI0LTA0LTI2IDEyOjI2OjI1LjAzNiArMDA6MDA6MDAifSwiaWF0IjoxNzE0MjM2MTY1LCJleHAiOjE3MTQyNzIxNjV9.xAOftLh-DKvc2gEVl4UEV4YngPoUw-qeg8-ORgOxtQs 
+
+
+### Delete students
+DELETE http://localhost:8000/api/student/delete-student/662bdea8319cd842bdbff3a4
+Content-Type: application/json
+Authorization:eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyIjp7ImlkIjoiNjYyOTUyOWVmZTIzNWJmYTQyYTFhNTdjIiwibmFtZSI6IlRlc3RVc2VyIFVwZGF0ZSIsImVtYWlsIjoiVGVzdFVzZXJAZ21haWwuY29tIiwibW9iaWxlX251bWJlciI6IjEyMzQ1Njc4OTAiLCJ1c2VyX3R5cGUiOiJBZG1pbiIsImlzX2FjdGl2ZSI6dHJ1ZSwiY3JlYXRlZF9hdCI6IjIwMjQtMDQtMjQgMTg6NDI6MzguNTMxICswMDowMDowMCIsInVwZGF0ZWRfYXQiOiIyMDI0LTA0LTI2IDEyOjI2OjI1LjAzNiArMDA6MDA6MDAifSwiaWF0IjoxNzE0MTk5NjU5LCJleHAiOjE3MTQyMzU2NTl9.Fc2XX2u2k2EVZAD2-o3-YCJAHbxEzRhSxuOEP8SWqrw 
+
+
+### Add Parent 
+POST  http://localhost:8000/api/student/add-parent
+Content-Type: application/json
+Authorization:eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyIjp7ImlkIjoiNjYyOTUyOWVmZTIzNWJmYTQyYTFhNTdjIiwibmFtZSI6IlRlc3RVc2VyIFVwZGF0ZSIsImVtYWlsIjoiVGVzdFVzZXJAZ21haWwuY29tIiwibW9iaWxlX251bWJlciI6IjEyMzQ1Njc4OTAiLCJ1c2VyX3R5cGUiOiJBZG1pbiIsImlzX2FjdGl2ZSI6dHJ1ZSwiY3JlYXRlZF9hdCI6IjIwMjQtMDQtMjQgMTg6NDI6MzguNTMxICswMDowMDowMCIsInVwZGF0ZWRfYXQiOiIyMDI0LTA0LTI2IDEyOjI2OjI1LjAzNiArMDA6MDA6MDAifSwiaWF0IjoxNzE0MTk5NjU5LCJleHAiOjE3MTQyMzU2NTl9.Fc2XX2u2k2EVZAD2-o3-YCJAHbxEzRhSxuOEP8SWqrw 
+
+{
+    "student_id":"662bd9997485c45215447013",
+    "name":"Test Parent",
+    "address":"Test Address",
+    "mobile_number":123456789,
+    "email":"parent@gmail.com"
+}
+
+
+###  -----------------------------------    EVENT REQUESTS ---------------------------------------- ###
+### Add Event 
+POST  http://192.168.0.119:8000/api/event/add-event
+Content-Type: application/json
+Authorization:eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyIjp7ImlkIjoiNjYyOTUyOWVmZTIzNWJmYTQyYTFhNTdjIiwibmFtZSI6IlRlc3RVc2VyIFVwZGF0ZSIsImVtYWlsIjoiVGVzdFVzZXJAZ21haWwuY29tIiwibW9iaWxlX251bWJlciI6IjEyMzQ1Njc4OTAiLCJ1c2VyX3R5cGUiOiJBZG1pbiIsImlzX2FjdGl2ZSI6dHJ1ZSwiY3JlYXRlZF9hdCI6IjIwMjQtMDQtMjQgMTg6NDI6MzguNTMxICswMDowMDowMCIsInVwZGF0ZWRfYXQiOiIyMDI0LTA0LTI2IDEyOjI2OjI1LjAzNiArMDA6MDA6MDAifSwiaWF0IjoxNzE0Mjg1MDM3LCJleHAiOjE3MTQzMjEwMzd9.ptniBf4d1s60VY8H2y44RKMR07nQrYWkiRLfcMaTtfw 
+
+{
+    "title":"Teste Title",
+    "discription":"Test discription",
+    "location":"NAGAR",
+    "start_date":"202404280150",
+    "end_date":"202404300850"
+}
+
+### Add Evenet File Data/ Update
+POST  http://192.168.0.119:8000/api/event/add-file-data/662d2b16593986517d824eeb
+Content-Type: application/json
+Authorization:eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyIjp7ImlkIjoiNjYyOTUyOWVmZTIzNWJmYTQyYTFhNTdjIiwibmFtZSI6IlRlc3RVc2VyIFVwZGF0ZSIsImVtYWlsIjoiVGVzdFVzZXJAZ21haWwuY29tIiwibW9iaWxlX251bWJlciI6IjEyMzQ1Njc4OTAiLCJ1c2VyX3R5cGUiOiJBZG1pbiIsImlzX2FjdGl2ZSI6dHJ1ZSwiY3JlYXRlZF9hdCI6IjIwMjQtMDQtMjQgMTg6NDI6MzguNTMxICswMDowMDowMCIsInVwZGF0ZWRfYXQiOiIyMDI0LTA0LTI2IDEyOjI2OjI1LjAzNiArMDA6MDA6MDAifSwiaWF0IjoxNzE0MjM2MTY1LCJleHAiOjE3MTQyNzIxNjV9.xAOftLh-DKvc2gEVl4UEV4YngPoUw-qeg8-ORgOxtQs 
+
+
+### Get Events
+GET  http://192.168.0.119:8000/api/event/get-events/0/20
+Content-Type: application/json
+Authorization:eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyIjp7ImlkIjoiNjYyOTUyOWVmZTIzNWJmYTQyYTFhNTdjIiwibmFtZSI6IlRlc3RVc2VyIFVwZGF0ZSIsImVtYWlsIjoiVGVzdFVzZXJAZ21haWwuY29tIiwibW9iaWxlX251bWJlciI6IjEyMzQ1Njc4OTAiLCJ1c2VyX3R5cGUiOiJBZG1pbiIsImlzX2FjdGl2ZSI6dHJ1ZSwiY3JlYXRlZF9hdCI6IjIwMjQtMDQtMjQgMTg6NDI6MzguNTMxICswMDowMDowMCIsInVwZGF0ZWRfYXQiOiIyMDI0LTA0LTI2IDEyOjI2OjI1LjAzNiArMDA6MDA6MDAifSwiaWF0IjoxNzE0Mjg1MDM3LCJleHAiOjE3MTQzMjEwMzd9.ptniBf4d1s60VY8H2y44RKMR07nQrYWkiRLfcMaTtfw 
+
+
+### Get Event 
+GET  http://192.168.0.119:8000/api/event/get-event/662d2b16593986517d824eec
+Content-Type: application/json
+Authorization:eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyIjp7ImlkIjoiNjYyOTUyOWVmZTIzNWJmYTQyYTFhNTdjIiwibmFtZSI6IlRlc3RVc2VyIFVwZGF0ZSIsImVtYWlsIjoiVGVzdFVzZXJAZ21haWwuY29tIiwibW9iaWxlX251bWJlciI6IjEyMzQ1Njc4OTAiLCJ1c2VyX3R5cGUiOiJBZG1pbiIsImlzX2FjdGl2ZSI6dHJ1ZSwiY3JlYXRlZF9hdCI6IjIwMjQtMDQtMjQgMTg6NDI6MzguNTMxICswMDowMDowMCIsInVwZGF0ZWRfYXQiOiIyMDI0LTA0LTI2IDEyOjI2OjI1LjAzNiArMDA6MDA6MDAifSwiaWF0IjoxNzE0Mjg1MDM3LCJleHAiOjE3MTQzMjEwMzd9.ptniBf4d1s60VY8H2y44RKMR07nQrYWkiRLfcMaTtfw 
+
+
+### delete event
+DELETE  http://192.168.0.119:8000/api/event/delete-event/662d3586080499225dd257eb
+Content-Type: application/json
+Authorization:eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyIjp7ImlkIjoiNjYyOTUyOWVmZTIzNWJmYTQyYTFhNTdjIiwibmFtZSI6IlRlc3RVc2VyIFVwZGF0ZSIsImVtYWlsIjoiVGVzdFVzZXJAZ21haWwuY29tIiwibW9iaWxlX251bWJlciI6IjEyMzQ1Njc4OTAiLCJ1c2VyX3R5cGUiOiJBZG1pbiIsImlzX2FjdGl2ZSI6dHJ1ZSwiY3JlYXRlZF9hdCI6IjIwMjQtMDQtMjQgMTg6NDI6MzguNTMxICswMDowMDowMCIsInVwZGF0ZWRfYXQiOiIyMDI0LTA0LTI2IDEyOjI2OjI1LjAzNiArMDA6MDA6MDAifSwiaWF0IjoxNzE0Mjg1MDM3LCJleHAiOjE3MTQzMjEwMzd9.ptniBf4d1s60VY8H2y44RKMR07nQrYWkiRLfcMaTtfw 
+
+### update event
+
+DELETE  http://192.168.0.119:8000/api/event/delete-event/662d3586080499225dd257eb
+Content-Type: application/json
+Authorization:eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyIjp7ImlkIjoiNjYyOTUyOWVmZTIzNWJmYTQyYTFhNTdjIiwibmFtZSI6IlRlc3RVc2VyIFVwZGF0ZSIsImVtYWlsIjoiVGVzdFVzZXJAZ21haWwuY29tIiwibW9iaWxlX251bWJlciI6IjEyMzQ1Njc4OTAiLCJ1c2VyX3R5cGUiOiJBZG1pbiIsImlzX2FjdGl2ZSI6dHJ1ZSwiY3JlYXRlZF9hdCI6IjIwMjQtMDQtMjQgMTg6NDI6MzguNTMxICswMDowMDowMCIsInVwZGF0ZWRfYXQiOiIyMDI0LTA0LTI2IDEyOjI2OjI1LjAzNiArMDA6MDA6MDAifSwiaWF0IjoxNzE0Mjg1MDM3LCJleHAiOjE3MTQzMjEwMzd9.ptniBf4d1s60VY8H2y44RKMR07nQrYWkiRLfcMaTtfw 
+
+{
+    "title":"Teste Title update",
+    "discription":"Test discription update",
+    "location":"NAGAR",
+    "start_date":"202404280150",
+    "end_date":"202404300850",
+    "is_active":true
+}

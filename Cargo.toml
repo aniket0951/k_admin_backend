@@ -1,0 +1,36 @@
+[package]
+name = "k_admin"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+actix-files = "0.6.5"
+actix-multipart = "0.6.1"
+actix-service = "2.0.2"
+actix-web = "4.5.1"
+validator = { version = "0.12", features = ["derive"] }
+lazy_static = "1.4.0"
+regex = "1.5.6"
+actix-web-static-files = "4.0.1"
+bcrypt = "0.15.1"
+bson = "2.10.0"
+chrono = { version = "0.4.23", features = ["serde"] }
+derive_more = "0.99.17"
+dotenv = "0.15.0"
+env_logger = "0.11.3"
+futures = "0.3.30"
+jsonwebtoken = "9.3.0"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1"
+static-files = "0.2.3"
+uuid = { version = "1.2.2", features = ["v4"] }
+actix-cors = "0.7.0"
+
+
+[dependencies.mongodb]
+static-files = "0.2.1"
+version = "2.2.0"
+default-features = false
+features = ["async-std-runtime"]
