@@ -1,7 +1,8 @@
 
+use actix_web::App;
 use bson::{doc, oid::ObjectId, Document};
-use mongodb::{ results::{DeleteResult, InsertOneResult, UpdateResult}, Collection, Database};
-use crate::{helper::app_errors::AppError, models::student_model::{Parents, Students}};
+use mongodb::{ options, results::{DeleteResult, InsertOneResult, UpdateResult}, Collection, Database};
+use crate::{dto::{app_dto::CreateBranchDTO, student_dto::CreateStudentDTO}, helper::app_errors::AppError, models::student_model::{Parents, Students}};
 use futures::stream::TryStreamExt; 
 pub struct StudentRepo {
     student_col:Collection<Document>
@@ -50,8 +51,13 @@ impl StudentRepo {
         }
     }
 
-    pub async fn get_students(&self) -> Result<Vec<Students>, AppError> {
-        let mut cursor = match self.student_col.find(None, None).await{
+    pub async fn get_students(&self, skip:i64, limit:i64) -> Result<Vec<Students>, AppError> {
+        let opt = options::FindOptions::builder()
+            .sort(doc!{"created_at":-1})
+            .skip(skip as u64)
+            .limit(limit)
+            .build();
+        let mut cursor = match self.student_col.find(None, opt).await{
             Ok(document) => document,
             Err(e) => return Err(AppError::CustomError(e.to_string())),
         };
@@ -91,5 +97,33 @@ impl StudentRepo {
         }
     }
 
+    pub async fn total_students(&self) -> u64 {
+        let result = match self.student_col.count_documents(None, None).await{
+            Ok(count) => count,
+            Err(_) => 0,
+        };
+
+        result
+    }
+
+    pub async fn update_student(&self, studentId:ObjectId, student:CreateStudentDTO) -> Result<UpdateResult, AppError> {
+        let update = doc! {
+            "$set":{
+                "name":student.name,
+                "age":student.age,
+                "date_of_birth":student.date_of_birth,
+                "address": student.address,
+                "class_branch": student.class_branch,
+                "updated_at":bson::DateTime::now()
+            }
+        };
+
+        match self.student_col.update_one(doc! { "_id":studentId }, update, None).await {
+            Ok(result) => Ok(result),
+            Err(e) => {
+                Err(AppError::CustomError(e.to_string()))
+            },
+        }
+    } 
 
 }

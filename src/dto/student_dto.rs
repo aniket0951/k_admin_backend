@@ -1,3 +1,6 @@
+
+
+use actix_multipart::form::{tempfile::TempFile, MultipartForm};
 use serde::{Deserialize, Serialize};
 
 use crate::models::student_model::{Parents, Students};
@@ -55,7 +58,7 @@ impl StudentsDTO {
         }
 
         if !s.profile_pic.is_none() {
-            s.profile_pic = Some(format!("http://localhost:8000 {}" , s.profile_pic.unwrap()))
+            s.profile_pic = Some(format!("http://192.168.0.119:8000{}" , s.profile_pic.unwrap()))
         }
 
         s
@@ -81,6 +84,11 @@ pub struct GetParentDTO {
     pub email:String,
     pub created_at:String,
     pub updated_at:String
+}
+
+#[derive(MultipartForm)]
+pub struct UploadProfileDTO {
+    pub file:TempFile,
 }
 
 impl GetParentDTO {

@@ -46,7 +46,7 @@ where
 
     fn call(&self, req: ServiceRequest) -> Self::Future {
         
-        if req.path() != "/api/login" && !req.path().contains("/static")  {
+        if req.path() != "/api/login" && !req.path().contains("/static") && !req.path().contains("/student/upload-profile")  {
 
             let verify = req.headers().get("Authorization");
 

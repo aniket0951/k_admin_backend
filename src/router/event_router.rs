@@ -11,4 +11,5 @@ pub fn event_router() -> actix_web::Scope {
         .route("/get-event/{path}", web::get().to(get_event))
         .route("/delete-event/{path}", web::delete().to(delete_event))
         .route("/update-event/{path}", web::put().to(update_event))
+        .route("/total-event", web::get().to(total_event))
 }
