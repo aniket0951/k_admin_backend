@@ -1,6 +1,5 @@
 use serde::{Deserialize, Serialize};
 use crate::models::events::Events;
-use chrono::{DateTime, Utc};
 
 #[derive(Serialize,Deserialize)]
 pub struct CreateEventDTO {
@@ -61,7 +60,7 @@ impl GetEventsDTO {
             for i in event.file_data.unwrap() {
                 data.push( GetFileData {
                     file_type: i.file_type,
-                    file_path:  format!("http://localhost:8000{}",i.file_path),
+                    file_path:  format!("http://192.168.0.119:8000{}",i.file_path),
                     created_at: i.created_at.unwrap().to_string(),
                 })
             }

@@ -300,4 +300,20 @@ pub async fn update_event(db:Data<EventRepo>, path:Path<String>, mut request:Jso
     }
 }
 
-
+pub async fn total_event(db:Data<EventRepo>) -> impl Responder {
+    match db.total_event().await {
+        Ok(count) => {
+            HttpResponse::Ok().json(
+                ResponseBuilder::SuccessResponse(
+                    Messages::DataFetchSuccess.to_string(),
+                    Some(count)
+                )
+            )
+        },
+        Err(e) => {
+            HttpResponse::BadRequest().json(
+                ResponseBuilder::<()>::FailedResponse(e.to_string())
+            )
+        },
+    }
+}

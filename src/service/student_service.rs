@@ -1,12 +1,11 @@
-use std::io::Write;
+use std::path::PathBuf;
 
-use actix_multipart::Multipart;
+use actix_multipart::form::MultipartForm;
 use actix_web::{ web::{Data, Path ,Json}, HttpResponse, Responder};
 use bson::oid::ObjectId;
-use futures::{StreamExt, TryStreamExt};
 use validator::validate_email;
-
-use crate::{dto::student_dto::{CreateParentDTO, CreateStudentDTO, StudentsDTO}, helper::{app_errors::{AppError, Messages}, response::ResponseBuilder}, models::student_model::{Parents, Students}, repo::student_repo::StudentRepo};
+extern crate sanitize_filename;
+use crate::{dto::student_dto::{CreateParentDTO, CreateStudentDTO, StudentsDTO, UploadProfileDTO}, helper::{app_errors::{AppError, Messages}, response::ResponseBuilder}, models::student_model::{Parents, Students}, repo::student_repo::StudentRepo};
 
 pub async fn add_student(db:Data<StudentRepo>, request:Json<CreateStudentDTO>) -> impl Responder {
     if request.name.is_empty() || request.class_branch.is_empty() {
@@ -43,8 +42,9 @@ pub async fn add_student(db:Data<StudentRepo>, request:Json<CreateStudentDTO>) -
     }
 }
 
-pub async fn get_students(db:Data<StudentRepo>) -> impl Responder {
-    match db.get_students().await {
+pub async fn get_students(db:Data<StudentRepo>, path:Path<(i64, i64)>) -> impl Responder {
+    let (skip, limit) = path.into_inner();
+    match db.get_students(skip, limit).await {
         Ok(students) => {
             if students.len() == 0 {
                 return HttpResponse::NotFound().json(
@@ -68,6 +68,44 @@ pub async fn get_students(db:Data<StudentRepo>) -> impl Responder {
         Err(e) => {
             HttpResponse::BadRequest().json(
                 ResponseBuilder::<()>::FailedResponse(e.to_string())
+            )
+        },
+    }
+}
+
+pub async fn total_students(db:Data<StudentRepo>) -> impl Responder {
+    let result = db.total_students().await;
+    HttpResponse::Ok().json(
+        ResponseBuilder::SuccessResponse(
+            format!("Total Count fetched"),
+            Some(result)
+        )
+    )
+}
+
+#[allow(non_snake_case)]
+pub async fn get_student(db:Data<StudentRepo>, path:Path<String>) -> impl Responder {
+    match ObjectId::parse_str(path.into_inner()) {
+        Ok(objId) => {
+            match db.get_student(objId).await {
+                Ok(student) => {
+                    HttpResponse::Ok().json(
+                        ResponseBuilder::SuccessResponse(
+                            Messages::DataFetchSuccess.to_string(),
+                            Some(StudentsDTO::init(student))
+                        )
+                    )
+                },
+                Err(err) => {
+                    HttpResponse::BadRequest().json(
+                        ResponseBuilder::<()>::FailedResponse(err.to_string())
+                    )
+                },
+            }
+        },
+        Err(_) => {
+            HttpResponse::BadRequest().json(
+                ResponseBuilder::<()>::InValidIdResponse()
             )
         },
     }
@@ -108,57 +146,51 @@ pub async fn delete_student(db:Data<StudentRepo>, path:Path<String>) -> impl Res
 }
 
 #[allow(non_snake_case)]
-pub async fn upload_profile(db:Data<StudentRepo>, mut payload:Multipart) -> impl Responder {
-    let mut text_data: Option<String> = None;
-    let mut file_data: Option<Vec<u8>> = None;
-    let mut filename: Option<String> = None;
-
-    while let Ok(Some(mut field)) = payload.try_next().await {
-        let content_disposition = field.content_disposition();
-        let name = content_disposition.get_name().unwrap();
-
-        if name == "userid" {
-            // Process text field data
-            let mut data = Vec::new();
-            while let Some(chunk) = field.next().await {
-                data.extend_from_slice(&chunk.unwrap());
-            }
-            text_data = Some(String::from_utf8_lossy(&data).to_string());
-        } else {
-            // Process file data
-            let content_disposition = field.content_disposition();
-            filename = content_disposition.get_filename().map(|f| f.to_string());
-            let mut data = Vec::new();
-            while let Some(chunk) = field.next().await {
-                data.extend_from_slice(&chunk.unwrap());
-            }
-            file_data = Some(data);
-        }
-    }
-
-    // checkt the validation for Object ID
-    match ObjectId::parse_str(text_data.unwrap()) {
+pub async fn upload_profile(db:Data<StudentRepo>, path:Path<String> , payload:MultipartForm<UploadProfileDTO>) -> impl Responder {
+    
+    match ObjectId::parse_str(path.into_inner()) {
         Ok(objId) => {
-            let  file_path = format!("/static/student/{}", filename.unwrap());
+                    
+            let f_file_path = format!("/static/student/");
+        
+            let temp_file_path = payload.file.file.path();
+            let file_name: &str = payload
+                .file
+                .file_name
+                .as_ref()
+                .map(|m| m.as_ref())
+                .unwrap_or("null");
+        
+            let mut file_path = PathBuf::from(format!(".{}",f_file_path));
+            file_path.push(&sanitize_filename::sanitize(&file_name));
+            match std::fs::rename(temp_file_path, file_path.clone()) {
+                Ok(_) => {
 
-            match std::fs::File::create(format!(".{}",file_path.clone())) {
-                Ok(mut file) => {
-                    let err = file.write_all(&file_data.unwrap());
-                    if err.is_err() {
-                        return HttpResponse::BadRequest().json(
-                            ResponseBuilder::<()>::FailedResponse(
-                                Messages::DataUpdateFailed.to_string()
+                    // save the old profile pic path if the user have
+                    let student = match delete_old_profile_pic(db.clone(), objId).await {
+                        Ok(s) => s,
+                        Err(e) =>{
+                            return HttpResponse::BadRequest().json(
+                                ResponseBuilder::<()>::FailedResponse(e.to_string())
                             )
-                        )
-                    }
+                        },
+                    };
 
-                    match db.update_profile_pic(file_path.clone() , objId).await {
+                    match db.update_profile_pic(format!("{}{}",f_file_path, file_name), objId).await {
                         Ok(result) => {
                             if result.matched_count == 0 {
-                                _ = std::fs::remove_file(file_path);
+                                let _ = std::fs::remove_file(file_path);
                                 return HttpResponse::BadRequest().json(
                                     ResponseBuilder::<()>::FailedResponse(Messages::DataUpdateFailed.to_string())
-                                );
+                                )
+                            }
+
+                            // check if old profile pic there then remove old file
+                            if !student.profile_pic.is_none() {
+                                let res = std::fs::remove_file(format!(".{}",student.profile_pic.unwrap().to_string()));
+                                if res.is_err() {
+                                    println!("Error while deleting a old")
+                                }
                             }
 
                             HttpResponse::Ok().json(
@@ -169,18 +201,16 @@ pub async fn upload_profile(db:Data<StudentRepo>, mut payload:Multipart) -> impl
                             )
                         },
                         Err(e) => {
-                            HttpResponse::BadRequest().json(
+                            let _ = std::fs::remove_file(file_path);
+                            HttpResponse::InternalServerError().json(
                                 ResponseBuilder::<()>::FailedResponse(e.to_string())
                             )
                         },
-                    }  
+                    }
                 },
-                Err(e) => {
-                    HttpResponse::BadRequest().json(
-                        ResponseBuilder::<()>::FailedResponse(e.to_string())
-                    )
-                },
+                Err(e) => return HttpResponse::InternalServerError().json(e.to_string()),
             }
+        
         },
         Err(_) => {
             HttpResponse::BadRequest().json(
@@ -189,8 +219,16 @@ pub async fn upload_profile(db:Data<StudentRepo>, mut payload:Multipart) -> impl
         },
     }
 
-    // HttpResponse::Ok().body("File(s) uploaded successfully")
-
+}
+// will check if the use have a profile already then delete old pic
+#[allow(non_snake_case)]
+pub async fn delete_old_profile_pic(db:Data<StudentRepo>,studentId:ObjectId) -> Result<Students, AppError> {
+    match db.get_student(studentId).await {
+        Ok(student) => {
+            Ok(student)
+        },
+        Err(e) =>  Err(e),
+    }
 }
 
 #[allow(non_snake_case)]
@@ -245,5 +283,38 @@ pub async fn add_parent(db:Data<StudentRepo>, request:Json<CreateParentDTO>) -> 
         },
     }
 
+}
+#[allow(non_snake_case)]
+pub async fn update_student(db:Data<StudentRepo>, path:Path<String>, request:Json<CreateStudentDTO>) -> impl Responder {
+    match ObjectId::parse_str(path.into_inner()) {
+        Ok(objeId) => {
+            match db.update_student(objeId, request.into_inner()).await {
+                Ok(result) => {
+                    if result.matched_count == 0 {
+                        return HttpResponse::BadRequest().json(
+                            ResponseBuilder::<()>::FailedResponse(Messages::DataUpdateFailed.to_string())
+                        );
+                    }
+
+                    HttpResponse::Ok().json(
+                        ResponseBuilder::<()>::SuccessResponse(
+                            Messages::DataUpdateSuccess.to_string(),
+                            None
+                        )
+                    )
+                },
+                Err(e) => {
+                    HttpResponse::BadRequest().json(
+                        ResponseBuilder::<()>::FailedResponse(e.to_string())
+                    )
+                },
+            }
+        },
+        Err(_) => {
+            HttpResponse::BadRequest().json(
+                ResponseBuilder::<()>::InValidIdResponse()
+            )
+        },
+    }
 }
 
