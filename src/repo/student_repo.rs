@@ -1,9 +1,9 @@
-
-use actix_web::App;
-use bson::{doc, oid::ObjectId, Document};
+use bson::{doc, oid::ObjectId, DateTime as MongoDateTime, Document};
 use mongodb::{ options, results::{DeleteResult, InsertOneResult, UpdateResult}, Collection, Database};
-use crate::{dto::{app_dto::CreateBranchDTO, student_dto::CreateStudentDTO}, helper::app_errors::AppError, models::student_model::{Parents, Students}};
+use crate::{dto::student_dto::CreateStudentDTO, helper::app_errors::AppError, models::student_model::{Parents, Students}};
 use futures::stream::TryStreamExt; 
+use chrono::{Datelike, Utc};
+
 pub struct StudentRepo {
     student_col:Collection<Document>
 }
@@ -51,13 +51,20 @@ impl StudentRepo {
         }
     }
 
-    pub async fn get_students(&self, skip:i64, limit:i64) -> Result<Vec<Students>, AppError> {
+    pub async fn get_students(&self, skip:i64, limit:i64, tag:String) -> Result<Vec<Students>, AppError> {
         let opt = options::FindOptions::builder()
             .sort(doc!{"created_at":-1})
             .skip(skip as u64)
             .limit(limit)
             .build();
-        let mut cursor = match self.student_col.find(None, opt).await{
+
+        let mut filter = Document::new();
+
+        if tag != "ALL" {
+            filter.insert("level",  tag);
+        } 
+
+        let mut cursor = match self.student_col.find(filter, opt).await{
             Ok(document) => document,
             Err(e) => return Err(AppError::CustomError(e.to_string())),
         };
@@ -125,5 +132,48 @@ impl StudentRepo {
             },
         }
     } 
+    
+    pub async fn last_month_admission_count(&self) -> u64 {
+
+        let now = Utc::now();
+        let month = now.month()-1;
+        let dt = bson::DateTime::builder().year(now.year()).month(month as u8).day(now.day().try_into().unwrap()).minute(0).millisecond(0).build();
+
+      
+        let filter = doc! {
+            "created_at":{
+                "$gte": dt.unwrap(),
+                "$lt":MongoDateTime::now()
+            }
+        };
+        match self.student_col.count_documents(filter, None).await {
+            Ok(count) => {
+                println!("COUNT : {:?}", count);
+                count
+            },
+            Err(_) => 0,
+        }
+        
+    }
+
+    pub async fn pending_registration(&self) -> Result<Vec<Students>, AppError> {
+        let mut cursor = match self.student_col.find(doc! { "registration_status": "PENDING" }, None).await {
+            Ok(cursor) => cursor,
+            Err(e) => return  Err(AppError::CustomError(e.to_string())),
+        };
+
+        let mut students :Vec<Students> = Vec::new();
+
+        while let Some(student) = cursor
+            .try_next()
+            .await
+            .ok()
+            .expect("Mapping Error")
+        {
+            students.push(bson::from_document(student).unwrap())
+        }
+
+        Ok(students)
+    }
 
 }

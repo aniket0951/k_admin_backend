@@ -1,5 +1,4 @@
 use bson::{oid::ObjectId, Document};
-use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize,Deserialize, Default)]
@@ -12,8 +11,8 @@ pub struct Events {
     pub is_active:Option<bool>,
     #[serde(skip_serializing_if="Option::is_none")]
     pub file_data:Option<Vec<FileData>>,
-    pub start_date:Option<DateTime<Utc>>,
-    pub end_date:Option<DateTime<Utc>>,
+    pub start_date:Option<bson::DateTime>,
+    pub end_date:Option<bson::DateTime>,
     pub created_at:Option<bson::DateTime>,
     pub updated_at:Option<bson::DateTime>
 }

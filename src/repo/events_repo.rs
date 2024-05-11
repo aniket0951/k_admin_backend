@@ -114,11 +114,25 @@ impl EventRepo {
     }
 
     pub async fn total_event(&self) -> Result<u64, AppError> {
-        match self.event_col.count_documents(doc! { "is_active":true}, None).await {
+        match self.event_col.count_documents(None, None).await {
             Ok(result) => Ok(result),
             Err(e) => Err(AppError::CustomError(e.to_string())),
         }
     }
 
+    pub async fn upcommint_event_count(&self) -> Result<u64, AppError> {
+        
+        let filter = doc! {
+            "start_date": {
+                "$gte":bson::DateTime::now(),
+            }
+        };
+        match self.event_col.count_documents(filter, None).await {
+            Ok(count) => {
+                Ok(count)
+            },
+            Err(e) => Err(AppError::CustomError(e.to_string())),
+        }
+    }
     
 }

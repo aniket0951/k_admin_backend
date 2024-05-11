@@ -1,7 +1,7 @@
 use actix_web::{ web::{Data,Path, Json}, HttpResponse, Responder};
 use bson::oid::ObjectId;
 
-use crate::{dto::app_dto::{CreateBranchDTO, GetBranchDTO}, helper::{app_errors::{AppError, Messages}, response::ResponseBuilder}, models::app::Branches, repo::app_repo::AppRepo};
+use crate::{dto::app_dto::{AppCountDTO, CreateBranchDTO, GetBranchDTO}, helper::{app_errors::{AppError, Messages}, response::ResponseBuilder}, models::app::Branches, repo::app_repo::AppRepo};
 
 
 pub async fn add_branch(db:Data<AppRepo>, request:Json<CreateBranchDTO>) -> impl Responder {
@@ -137,7 +137,49 @@ pub async fn delete_branch(db:Data<AppRepo>, path:Path<String>) -> impl Responde
     }
 }
 
+#[allow(non_snake_case)]
+pub async fn app_counts(db:Data<AppRepo>) -> impl Responder {
+    // student counts
+    let totalStudent =  match db.total_students().await   {
+        Ok(count) => count,
+        Err(_) => 0,
+    };
 
+    let lastMonthAdmission = match db.last_month_admission_count().await {
+        Ok(count) => count,
+        Err(_) => 0,
+    };
+
+    let totalBranches = match db.total_branches().await {
+        Ok(count) => count,
+        Err(_) => 0,
+    };
+
+    let totalEvents = match db.total_events().await {
+        Ok(count) => count,
+        Err(_) => 0,
+    };
+
+    let totalUpCommingEvents = match db.upcommint_event_count().await {
+        Ok(count) => count,
+        Err(_) => 0,
+    };
+
+    let result = AppCountDTO {
+        totalStudent,
+        lastMonthAdmission,
+        totalBranches,
+        upCommingEvents: totalUpCommingEvents,
+        totalEvents
+    };
+
+    let response = ResponseBuilder::SuccessResponse(
+        Messages::DataFetchSuccess.to_string(),
+        Some(result)
+    );
+
+    HttpResponse::Ok().json(response)
+}
 
 #[allow(non_snake_case)]
 pub async fn get_branch(db:Data<AppRepo>, path:Path<String>) -> impl Responder {

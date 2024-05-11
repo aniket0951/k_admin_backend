@@ -2,7 +2,7 @@ use std:: io::Write;
 use actix_multipart::Multipart;
 use actix_web::{web::{Data, Path,Json}, HttpResponse, Responder};
 use bson::oid::ObjectId;
-use chrono::{NaiveDateTime,Utc, DateTime};
+use chrono::{DateTime, Datelike, NaiveDateTime, Utc};
 use futures::{StreamExt, TryStreamExt};
 use crate::{dto::event_dto::{CreateEventDTO, GetEventsDTO, UpdateEventDTO}, helper::{app_errors::{AppError, Messages}, response::ResponseBuilder}, models::events::{Events, FileData}, repo::events_repo::EventRepo};
 
@@ -11,7 +11,8 @@ pub async fn add_event(db:Data<EventRepo>, request:Json<CreateEventDTO>) -> impl
     let start_date =  match NaiveDateTime::parse_from_str(&request.start_date, "%Y%m%d%H%M") {
         Ok(datetime) => {
             let datetime_utc: DateTime<Utc> = chrono::TimeZone::from_utc_datetime(&Utc, &datetime);
-            datetime_utc
+            let bd = mongodb::bson::DateTime::builder().year(datetime_utc.year()).month(datetime_utc.month().try_into().unwrap()).day(datetime_utc.day().try_into().unwrap()).build().unwrap();
+            bd
         },
         Err(_) => {
            return  HttpResponse::BadRequest().json(
@@ -23,7 +24,8 @@ pub async fn add_event(db:Data<EventRepo>, request:Json<CreateEventDTO>) -> impl
     let end_date = match NaiveDateTime::parse_from_str(&request.end_date, "%Y%m%d%H%M") {
         Ok(datetime) => {
             let datetime_utc: DateTime<Utc> = chrono::TimeZone::from_utc_datetime(&Utc, &datetime);
-            datetime_utc
+            let bd = mongodb::bson::DateTime::builder().year(datetime_utc.year()).month(datetime_utc.month().try_into().unwrap()).day(datetime_utc.day().try_into().unwrap()).build().unwrap();
+            bd
         },
         Err(_) => {
             return  HttpResponse::BadRequest().json(
@@ -31,6 +33,14 @@ pub async fn add_event(db:Data<EventRepo>, request:Json<CreateEventDTO>) -> impl
             );
         },
     };
+
+    if end_date < start_date {
+        return HttpResponse::BadRequest().json(
+            ResponseBuilder::<()>::FailedResponse("end date should be next date of start date".to_string())
+        );
+    }
+
+    
     let event = Events {
         id: None,
         title: request.title.to_string(),

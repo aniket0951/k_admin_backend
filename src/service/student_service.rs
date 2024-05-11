@@ -5,7 +5,7 @@ use actix_web::{ web::{Data, Path ,Json}, HttpResponse, Responder};
 use bson::oid::ObjectId;
 use validator::validate_email;
 extern crate sanitize_filename;
-use crate::{dto::student_dto::{CreateParentDTO, CreateStudentDTO, StudentsDTO, UploadProfileDTO}, helper::{app_errors::{AppError, Messages}, response::ResponseBuilder}, models::student_model::{Parents, Students}, repo::student_repo::StudentRepo};
+use crate::{dto::student_dto::{CreateParentDTO, CreateStudentDTO, StudentsDTO, UploadProfileDTO}, helper::{self, app_errors::{AppError, Messages}, response::ResponseBuilder}, models::student_model::{Parents, Students}, repo::student_repo::StudentRepo};
 
 pub async fn add_student(db:Data<StudentRepo>, request:Json<CreateStudentDTO>) -> impl Responder {
     if request.name.is_empty() || request.class_branch.is_empty() {
@@ -14,6 +14,15 @@ pub async fn add_student(db:Data<StudentRepo>, request:Json<CreateStudentDTO>) -
         );
     };
 
+    if request.geneder.to_string().to_lowercase() != "male" && request.geneder.to_string().to_lowercase() != "female" {
+        return HttpResponse::BadRequest().json(
+            ResponseBuilder::<()>::FailedResponse("Invalid gender".to_string())
+        )
+    }
+
+    let seq = helper::helper::Helper::generate_unique_number();
+
+    let req_level = request.level.to_string();
     let student = Students {
         id: None,
         name: request.name.to_string(),
@@ -26,12 +35,21 @@ pub async fn add_student(db:Data<StudentRepo>, request:Json<CreateStudentDTO>) -
         created_at: Some(bson::DateTime::now()),
         updated_at: Some(bson::DateTime::now()),
         profile_pic: None,
+        level:Some( req_level.to_lowercase()),
+        nationality: Some("INDIAN".to_string()),
+        blood_group: Some(request.blood_group.to_string()),
+        weight: Some(request.weight.into()),
+        school_name: Some(request.school_name.to_string()),
+        addhar_number: Some(request.addhar_number.to_string()),
+        geneder: Some(request.geneder.to_string()),
+        student_id: Some(seq.to_string()),
+        registration_status: Some("PENDING".to_string()),
     };
 
     match db.add_student(student).await {
-        Ok(result) => {
+        Ok(_) => {
             HttpResponse::Ok().json(
-                ResponseBuilder::SuccessResponse(Messages::DataAddedSuccess.to_string(), Some(result))
+                ResponseBuilder::<()>::SuccessResponse(Messages::DataAddedSuccess.to_string(), None)
             )
         },
         Err(e) => {
@@ -42,9 +60,9 @@ pub async fn add_student(db:Data<StudentRepo>, request:Json<CreateStudentDTO>) -
     }
 }
 
-pub async fn get_students(db:Data<StudentRepo>, path:Path<(i64, i64)>) -> impl Responder {
-    let (skip, limit) = path.into_inner();
-    match db.get_students(skip, limit).await {
+pub async fn get_students(db:Data<StudentRepo>, path:Path<(i64, i64, String)>) -> impl Responder {
+    let (skip, limit,level) = path.into_inner();
+    match db.get_students(skip, limit, level).await {
         Ok(students) => {
             if students.len() == 0 {
                 return HttpResponse::NotFound().json(
@@ -284,6 +302,7 @@ pub async fn add_parent(db:Data<StudentRepo>, request:Json<CreateParentDTO>) -> 
     }
 
 }
+
 #[allow(non_snake_case)]
 pub async fn update_student(db:Data<StudentRepo>, path:Path<String>, request:Json<CreateStudentDTO>) -> impl Responder {
     match ObjectId::parse_str(path.into_inner()) {
@@ -317,4 +336,38 @@ pub async fn update_student(db:Data<StudentRepo>, path:Path<String>, request:Jso
         },
     }
 }
+
+
+#[allow(non_snake_case)]
+pub async fn get_pending_registration(db:Data<StudentRepo>) -> impl Responder {
+    match db.pending_registration().await {
+        Ok(students) => {
+            
+            if students.len() == 0 {
+                return  HttpResponse::BadRequest().json(
+                    ResponseBuilder::<()>::FailedResponse(AppError::DataNotFoundError.to_string())
+                );
+            }
+
+            let mut student_dto:Vec<StudentsDTO> = Vec::new();
+
+            for i in students {
+                student_dto.push(StudentsDTO::init(i));
+            }
+
+            HttpResponse::Ok().json(
+                ResponseBuilder::SuccessResponse(
+                    Messages::DataFetchSuccess.to_string(),
+                    Some(student_dto)
+                )
+            )
+        },
+        Err(e) => {
+            HttpResponse::BadRequest().json(
+                ResponseBuilder::<()>::FailedResponse(e.to_string())
+            )
+        },
+    }  
+} 
+
 

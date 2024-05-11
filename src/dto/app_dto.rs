@@ -30,3 +30,13 @@ impl GetBranchDTO {
         }
     }
 }
+
+#[derive(Serialize, Deserialize)]
+#[allow(non_snake_case)]
+pub struct AppCountDTO {
+    pub totalStudent:u64,
+    pub lastMonthAdmission:u64,
+    pub totalBranches:u64,
+    pub upCommingEvents:u64,
+    pub totalEvents:u64
+}
