@@ -134,5 +134,5 @@ impl EventRepo {
             Err(e) => Err(AppError::CustomError(e.to_string())),
         }
     }
-    
+
 }

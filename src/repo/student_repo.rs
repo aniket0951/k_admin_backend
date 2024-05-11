@@ -1,3 +1,4 @@
+use actix_web::App;
 use bson::{doc, oid::ObjectId, DateTime as MongoDateTime, Document};
 use mongodb::{ options, results::{DeleteResult, InsertOneResult, UpdateResult}, Collection, Database};
 use crate::{dto::student_dto::CreateStudentDTO, helper::app_errors::AppError, models::student_model::{Parents, Students}};
@@ -174,6 +175,16 @@ impl StudentRepo {
         }
 
         Ok(students)
+    }
+
+    pub async fn student_login(&self, studentId:String) -> Result<Students, AppError> {
+        match self.student_col.find_one(doc! { "student_id": studentId }, None).await {
+            Ok(Some(student)) =>{
+                bson::from_document(student).map_err(|e| AppError::CustomError(e.to_string()))
+            },
+            Ok(None) => return Err(AppError::DataNotFoundError) ,
+            Err(e) => Err(AppError::CustomError(e.to_string())),
+        }
     }
 
 }
