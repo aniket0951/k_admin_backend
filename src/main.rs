@@ -17,6 +17,7 @@ use actix_files as fs;
 use crate::router::{event_router::*, user_router::*, app_router::*,};
 use crate::router::student_routers::*;
 
+#[allow(non_snake_case)]
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     if std::env::var_os("RUST_LOG").is_none() {
@@ -31,22 +32,17 @@ async fn main() -> std::io::Result<()> {
         },
     };
 
-
-
     let db_user = UserRepo::init(db.clone()).await;
+    let studentRepo = StudentRepo::init(db.clone());
+    let eventRepo = EventRepo::init(db.clone());
     let db_user_db = Data::new(db_user);
     let db_student = Data::new(StudentRepo::init(db.clone()));
     let db_event = Data::new(EventRepo::init(db.clone()));
-    let db_app = Data::new(AppRepo::init(db));
+    let db_app = Data::new(AppRepo::init(db, studentRepo, eventRepo));
 
     println!("🚀 Server started successfully!");
 
     HttpServer::new(move || {
-        // let cors = Cors::default()
-        // .allow_any_origin()
-        // .allow_any_method()
-        // .allow_any_header() ;
-        // let cors = Cors::permissive();
         App::new()
             
             .app_data(db_user_db.clone())

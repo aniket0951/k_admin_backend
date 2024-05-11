@@ -9,4 +9,5 @@ pub fn app_router() -> actix_web::Scope {
         .route("/update-branch/{path}", web::put().to(update_branch))
         .route("/delete-branch/{path}", web::delete().to(delete_branch))
         .route("/get-branch/{path}", web::get().to(get_branch))
+        .route("/app-counts", web::get().to(app_counts))
 }

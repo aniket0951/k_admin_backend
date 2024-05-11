@@ -2,18 +2,22 @@ use bson::{doc, oid::ObjectId, Document};
 use futures::TryStreamExt;
 use mongodb::{options, results::{DeleteResult, InsertOneResult, UpdateResult}, Collection, Database};
 
-use crate::{dto::app_dto::CreateBranchDTO, helper::app_errors::AppError, models::app::Branches};
+use crate::{dto::app_dto::CreateBranchDTO, helper::app_errors::AppError, models::app::Branches, StudentRepo};
 
+use super::events_repo::EventRepo;
 
+#[allow(non_snake_case)]
 pub struct AppRepo {
-    branch_col:Collection<Document>
+    branch_col:Collection<Document>,
+    studentRepo:StudentRepo,
+    eventRepo:EventRepo
 }
 #[allow(non_snake_case)]
 impl AppRepo {
 
-    pub fn init(db:Database) -> Self {
+    pub fn init(db:Database, studentRepo:StudentRepo, eventRepo:EventRepo) -> Self {
         let branch_col = db.collection("branches");
-        AppRepo{ branch_col }
+        AppRepo{ branch_col, studentRepo, eventRepo }
     }
 
     pub async fn add_branch(&self, branch:Branches) -> Result<InsertOneResult, AppError> {
@@ -82,6 +86,32 @@ impl AppRepo {
         };
 
         bson::from_document(branch).map_err(|e| AppError::CustomError(e.to_string()))
+    }
+
+    pub async fn total_branches(&self) -> Result<u64, AppError> {
+        match self.branch_col.count_documents(None, None).await {
+            Ok(count) => Ok(count),
+            Err(e) => Err(AppError::CustomError(e.to_string())),
+        }
+    }
+
+    pub async fn total_students(&self) -> Result<u64, AppError> {
+        let result = self.studentRepo.total_students().await;
+        Ok(result)
+    }
+
+    pub async fn last_month_admission_count(&self) -> Result<u64, AppError> {
+        let result = self.studentRepo.last_month_admission_count().await;
+        Ok(result)
+    }
+
+    pub async fn total_events(&self) -> Result<u64, AppError> {
+        let result = self.eventRepo.total_event().await;
+        result
+    }
+
+    pub async fn upcommint_event_count(&self) -> Result<u64, AppError> {
+        self.eventRepo.upcommint_event_count().await
     }
 
 
