@@ -10,4 +10,12 @@ pub fn app_router() -> actix_web::Scope {
         .route("/delete-branch/{path}", web::delete().to(delete_branch))
         .route("/get-branch/{path}", web::get().to(get_branch))
         .route("/app-counts", web::get().to(app_counts))
+
+        .route("/guest-access", web::get().to(guest_access_token))
+
+        // fee router
+        .route("/add-fee", web::post().to(add_fee))
+        .route("/get-fee", web::get().to(get_fee))
+        .route("/enable-discount/{path}", web::put().to(make_discount_Active))
+        .route("/delete-fee/{path}", web::delete().to(delete_fee))
 }

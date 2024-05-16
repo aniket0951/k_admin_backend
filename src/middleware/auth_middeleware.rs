@@ -45,8 +45,10 @@ where
 
 
     fn call(&self, req: ServiceRequest) -> Self::Future {
-        
-        if req.path() != "/api/login" && !req.path().contains("/static") && !req.path().contains("/student/upload-profile")  {
+        // if !isStatic(req.path().to_string()) {
+
+        // }
+        if !isStatic(req.path().to_string())  {
 
             let verify = req.headers().get("Authorization");
 
@@ -91,4 +93,16 @@ where
         })
 
     }
+
+    
+
+}
+#[allow(non_snake_case)]
+fn isStatic(path:String) -> bool {
+
+    if path.contains("add-student") || path.contains("/static") || path.contains("/student/upload-profile") || path == "/api/login" || path.contains("/guest-access") || path.contains("student/login") {
+        return true
+    }
+
+    false
 }

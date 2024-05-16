@@ -1,23 +1,29 @@
+use std::result;
+
+use actix_web::App;
 use bson::{doc, oid::ObjectId, Document};
 use futures::TryStreamExt;
 use mongodb::{options, results::{DeleteResult, InsertOneResult, UpdateResult}, Collection, Database};
 
-use crate::{dto::app_dto::CreateBranchDTO, helper::app_errors::AppError, models::app::Branches, StudentRepo};
+use crate::{dto::app_dto::CreateBranchDTO, helper::app_errors::AppError, models::app::{Branches, Fees}, StudentRepo};
 
 use super::events_repo::EventRepo;
 
 #[allow(non_snake_case)]
 pub struct AppRepo {
     branch_col:Collection<Document>,
+    fees_col:Collection<Document>,
     studentRepo:StudentRepo,
-    eventRepo:EventRepo
+    eventRepo:EventRepo,
+    
 }
 #[allow(non_snake_case)]
 impl AppRepo {
 
     pub fn init(db:Database, studentRepo:StudentRepo, eventRepo:EventRepo) -> Self {
         let branch_col = db.collection("branches");
-        AppRepo{ branch_col, studentRepo, eventRepo }
+        let fees_col = db.collection("fees_col");
+        AppRepo{ branch_col, fees_col ,studentRepo, eventRepo }
     }
 
     pub async fn add_branch(&self, branch:Branches) -> Result<InsertOneResult, AppError> {
@@ -114,5 +120,59 @@ impl AppRepo {
         self.eventRepo.upcommint_event_count().await
     }
 
+    // ------------------------------ FEES ------------------------------------ //
+    pub async fn add_fee(&self, fees:Fees) -> Result<InsertOneResult, AppError> {
+        let bson_document = match fees.to_document() {
+            Ok(document) => document,
+            Err(e) => return Err(AppError::CustomError(e.to_string())),
+        };
+
+        match self.fees_col.insert_one(bson_document, None).await {
+            Ok(result) => Ok(result),
+            Err(e) => Err(AppError::CustomError(e.to_string())),
+        }
+    }
+
+    pub async fn get_fee(&self) -> Result<Vec<Fees>, AppError> {
+        let mut cursor = match self.fees_col.find(None, None).await {
+            Ok(cursor) => cursor,
+            Err(e) => return Err(AppError::CustomError(e.to_string())),
+        };
+
+        let mut fees:Vec<Fees> = Vec::new();
+
+        while let Some(fee) = cursor 
+        .try_next()
+        .await
+        .ok()
+        .expect("Mapping Error")
+
+        {
+            fees.push(bson::from_document(fee).unwrap())   
+        }
+
+        Ok(fees)
+    }
+
+    pub async fn make_discount_Active(&self, feeId:ObjectId) -> Result<UpdateResult, AppError> {
+        let update = doc! {
+            "$set": {
+                "is_discount":true,
+            }
+        };
+        
+        match self.fees_col.update_one(doc! { "_id":feeId }, update, None).await {
+            Ok(result) => Ok(result),
+            Err(e) => Err(AppError::CustomError(e.to_string())),
+        }
+    } 
+
+    pub async fn delete_fee(&self, feeId:ObjectId) -> Result<DeleteResult, AppError> {
+        match self.fees_col.delete_one(doc! { "_id":feeId }, None).await {
+            Ok(result) => Ok(result),
+            Err(e) => Err(AppError::CustomError(e.to_string())),
+        }
+    }
+    
 
 }

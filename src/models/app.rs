@@ -17,3 +17,21 @@ impl Branches {
         bson::to_document(self)
     }
 }
+#[allow(non_snake_case)]
+#[derive(Serialize, Deserialize)]
+pub struct Fees {
+    #[serde(rename="_id",skip_serializing_if="Option::is_none")]
+    pub id:Option<ObjectId>,
+    pub fee_type:String,
+    pub fee_amount:i64,
+    pub is_discount:bool,
+    pub fee_discount:f64,
+    pub created_at:bson::DateTime,
+    pub updated_at:bson::DateTime
+}
+
+impl Fees {
+    pub fn to_document(&self) -> Result<Document, mongodb::bson::ser::Error> {
+        bson::to_document(self)
+    }
+}

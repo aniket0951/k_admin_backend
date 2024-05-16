@@ -1,5 +1,5 @@
-### K-Admin Portal  
-POST http://192.168.0.119:8000/api/login
+### K-Admin Portal   
+POST http://localhost:8000/api/login
 Content-Type: application/json
 Authorization:eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyIjp7ImlkIjoiNjYyOTUyOWVmZTIzNWJmYTQyYTFhNTdjIiwibmFtZSI6IlRlc3RVc2VyIFVwZGF0ZSIsImVtYWlsIjoiVGVzdFVzZXJAZ21haWwuY29tIiwibW9iaWxlX251bWJlciI6IjEyMzQ1Njc4OTAiLCJ1c2VyX3R5cGUiOiJBZG1pbiIsImlzX2FjdGl2ZSI6dHJ1ZSwiY3JlYXRlZF9hdCI6IjIwMjQtMDQtMjQgMTg6NDI6MzguNTMxICswMDowMDowMCIsInVwZGF0ZWRfYXQiOiIyMDI0LTA0LTI2IDEyOjI2OjI1LjAzNiArMDA6MDA6MDAifSwiaWF0IjoxNzE1NDEwNzM2LCJleHAiOjE3MTU0NDY3MzZ9.TwylMiWjkxw7lLtID9TI8trxgpSKGWlpP22GXgV06A8 
 
@@ -31,27 +31,24 @@ Content-Type: application/json
 Authorization:eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyIjp7ImlkIjoiNjYyOTUyOWVmZTIzNWJmYTQyYTFhNTdjIiwibmFtZSI6IlRlc3RVc2VyIiwiZW1haWwiOiJUZXN0VXNlckBnbWFpbC5jb20iLCJtb2JpbGVfbnVtYmVyIjoiMTIzNDU2Nzg5MCIsInVzZXJfdHlwZSI6IkFkbWluIiwiaXNfYWN0aXZlIjp0cnVlLCJjcmVhdGVkX2F0IjoiMjAyNC0wNC0yNCAxODo0MjozOC41MzEgKzAwOjAwOjAwIiwidXBkYXRlZF9hdCI6IjIwMjQtMDQtMjQgMTg6NDI6MzguNTMxICswMDowMDowMCJ9LCJpYXQiOjE3MTQxMzQwMDcsImV4cCI6MTcxNDEzNzYwN30.rwBkGyYBOm_il3Tk0Npl6UojPPccsczqgUyMa5ZnaU4 
 
 
-
-### ---------------------------     STUDENT REQUETS -------------------------------------------  ### 
+### ---------------------------     STUDENT REQUETS -------------------------------------------  ###  
 POST http://192.168.0.119:8000/api/student/add-student
 Content-Type: application/json
-Authorization:eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyIjp7ImlkIjoiNjYyOTUyOWVmZTIzNWJmYTQyYTFhNTdjIiwibmFtZSI6IlRlc3RVc2VyIFVwZGF0ZSIsImVtYWlsIjoiVGVzdFVzZXJAZ21haWwuY29tIiwibW9iaWxlX251bWJlciI6IjEyMzQ1Njc4OTAiLCJ1c2VyX3R5cGUiOiJBZG1pbiIsImlzX2FjdGl2ZSI6dHJ1ZSwiY3JlYXRlZF9hdCI6IjIwMjQtMDQtMjQgMTg6NDI6MzguNTMxICswMDowMDowMCIsInVwZGF0ZWRfYXQiOiIyMDI0LTA0LTI2IDEyOjI2OjI1LjAzNiArMDA6MDA6MDAifSwiaWF0IjoxNzE1NDEwNzM2LCJleHAiOjE3MTU0NDY3MzZ9.TwylMiWjkxw7lLtID9TI8trxgpSKGWlpP22GXgV06A8 
 
 {
-    "name": "Student1",
-    "age": 16, 
-    "dob": "TestUser Update",
-    "address": "TestUser@gmail.com",
-    "class_branch":"BRANCH-1",
-    "level": "OffWhite",
-    "blood_group":"O+",
-    "weight":12,
-    "school_name":"Test School",
-    "addhar_number":"1234567890",
-    "geneder":"female"
+  "addhar_number": "4946-4646-8454",
+  "address": "dsjbdf",
+  "age": 12,
+  "blood_group": "Shshsu",
+  "dob": "2024/09/12",
+  "geneder": "male",
+  "level": "OffWhite",
+  "name": "New mobile ",
+  "school_name": "Mobile school",
+  "weight": 12
 }
 
-### Get Students  
+### Get Students 
 GET http://192.168.0.119:8000/api/student/get-students/0/10/ALL
 Content-Type: application/json
 Authorization:eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyIjp7ImlkIjoiNjYyOTUyOWVmZTIzNWJmYTQyYTFhNTdjIiwibmFtZSI6IlRlc3RVc2VyIFVwZGF0ZSIsImVtYWlsIjoiVGVzdFVzZXJAZ21haWwuY29tIiwibW9iaWxlX251bWJlciI6IjEyMzQ1Njc4OTAiLCJ1c2VyX3R5cGUiOiJBZG1pbiIsImlzX2FjdGl2ZSI6dHJ1ZSwiY3JlYXRlZF9hdCI6IjIwMjQtMDQtMjQgMTg6NDI6MzguNTMxICswMDowMDowMCIsInVwZGF0ZWRfYXQiOiIyMDI0LTA0LTI2IDEyOjI2OjI1LjAzNiArMDA6MDA6MDAifSwiaWF0IjoxNzE1NDEwNzM2LCJleHAiOjE3MTU0NDY3MzZ9.TwylMiWjkxw7lLtID9TI8trxgpSKGWlpP22GXgV06A8 
@@ -78,6 +75,13 @@ Authorization:eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyIjp7ImlkIjoiNjYyOTUyO
 DELETE http://localhost:8000/api/student/delete-student/662bdea8319cd842bdbff3a4
 Content-Type: application/json
 Authorization:eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyIjp7ImlkIjoiNjYyOTUyOWVmZTIzNWJmYTQyYTFhNTdjIiwibmFtZSI6IlRlc3RVc2VyIFVwZGF0ZSIsImVtYWlsIjoiVGVzdFVzZXJAZ21haWwuY29tIiwibW9iaWxlX251bWJlciI6IjEyMzQ1Njc4OTAiLCJ1c2VyX3R5cGUiOiJBZG1pbiIsImlzX2FjdGl2ZSI6dHJ1ZSwiY3JlYXRlZF9hdCI6IjIwMjQtMDQtMjQgMTg6NDI6MzguNTMxICswMDowMDowMCIsInVwZGF0ZWRfYXQiOiIyMDI0LTA0LTI2IDEyOjI2OjI1LjAzNiArMDA6MDA6MDAifSwiaWF0IjoxNzE0MTk5NjU5LCJleHAiOjE3MTQyMzU2NTl9.Fc2XX2u2k2EVZAD2-o3-YCJAHbxEzRhSxuOEP8SWqrw 
+
+
+### Student Login 
+GET http://192.168.0.119:8000/api/student/login/1634110426
+Content-Type: application/json
+Authorization:eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyIjp7Im5hbWUiOiJHdWVzdCIsInVzZXJUeXBlIjoiR3Vlc3QifSwiaWF0IjoxNzE1NzA3MzA3LCJleHAiOjE3MTU3NDMzMDd9.tOjSeXtEfbWo_SCjXq-XIPOJxVWvzoc0H0t020ltTR0 
+
 
 
 ### Add Parent 
@@ -117,7 +121,7 @@ Authorization:eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyIjp7ImlkIjoiNjYyOTUyO
 ### Get Events 
 GET  http://192.168.0.119:8000/api/event/get-events/0/20
 Content-Type: application/json
-Authorization:eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyIjp7ImlkIjoiNjYyOTUyOWVmZTIzNWJmYTQyYTFhNTdjIiwibmFtZSI6IlRlc3RVc2VyIFVwZGF0ZSIsImVtYWlsIjoiVGVzdFVzZXJAZ21haWwuY29tIiwibW9iaWxlX251bWJlciI6IjEyMzQ1Njc4OTAiLCJ1c2VyX3R5cGUiOiJBZG1pbiIsImlzX2FjdGl2ZSI6dHJ1ZSwiY3JlYXRlZF9hdCI6IjIwMjQtMDQtMjQgMTg6NDI6MzguNTMxICswMDowMDowMCIsInVwZGF0ZWRfYXQiOiIyMDI0LTA0LTI2IDEyOjI2OjI1LjAzNiArMDA6MDA6MDAifSwiaWF0IjoxNzE0ODEyNzgxLCJleHAiOjE3MTQ4NDg3ODF9.EE3hAb6yWa5lLapkpLawrKavSpYI3K0OLctWGSfxAEw 
+Authorization:eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyIjp7ImlkIjoiNjYyOTUyOWVmZTIzNWJmYTQyYTFhNTdjIiwibmFtZSI6IlRlc3RVc2VyIFVwZGF0ZSIsImVtYWlsIjoiVGVzdFVzZXJAZ21haWwuY29tIiwibW9iaWxlX251bWJlciI6IjEyMzQ1Njc4OTAiLCJ1c2VyX3R5cGUiOiJBZG1pbiIsImlzX2FjdGl2ZSI6dHJ1ZSwiY3JlYXRlZF9hdCI6IjIwMjQtMDQtMjQgMTg6NDI6MzguNTMxICswMDowMDowMCIsInVwZGF0ZWRfYXQiOiIyMDI0LTA0LTI2IDEyOjI2OjI1LjAzNiArMDA6MDA6MDAifSwiaWF0IjoxNzE1NjIzMjIyLCJleHAiOjE3MTU2NTkyMjJ9.Mh5dCvIY9yWYgCS2QKyEa82_mzKBQmSePqmEolI9pR0 
 
 
 ### Total Event Count
@@ -166,7 +170,7 @@ Authorization:eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyIjp7ImlkIjoiNjYyOTUyO
 ### Get Branches
 GET http://192.168.0.119:8000/api/app/get-branches
 Content-Type: application/json
-Authorization:eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyIjp7ImlkIjoiNjYyOTUyOWVmZTIzNWJmYTQyYTFhNTdjIiwibmFtZSI6IlRlc3RVc2VyIFVwZGF0ZSIsImVtYWlsIjoiVGVzdFVzZXJAZ21haWwuY29tIiwibW9iaWxlX251bWJlciI6IjEyMzQ1Njc4OTAiLCJ1c2VyX3R5cGUiOiJBZG1pbiIsImlzX2FjdGl2ZSI6dHJ1ZSwiY3JlYXRlZF9hdCI6IjIwMjQtMDQtMjQgMTg6NDI6MzguNTMxICswMDowMDowMCIsInVwZGF0ZWRfYXQiOiIyMDI0LTA0LTI2IDEyOjI2OjI1LjAzNiArMDA6MDA6MDAifSwiaWF0IjoxNzE1MTg3NzAzLCJleHAiOjE3MTUyMjM3MDN9.ZeqEtGgLIpnOcdEX-PRQZzfc12r8IXMXjX6Pec1QRKc 
+Authorization:eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyIjp7Im5hbWUiOiJHdWVzdCIsInVzZXJUeXBlIjoiR3Vlc3QifSwiaWF0IjoxNzE1NTExMzAyLCJleHAiOjE3MTU1NDczMDJ9.bazvsMHKUUVYJyDLObK_erPXi3lFioRWRERPfWLSUPw 
 
 ### Get Branch
 GET http://192.168.0.119:8000/api/app/get-branch/6635e4892158c225beefeef8
@@ -195,4 +199,36 @@ Authorization:eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyIjp7ImlkIjoiNjYyOTUyO
 ### Get App Count 
 GET http://192.168.0.119:8000/api/app/app-counts
 Content-Type: application/json
-Authorization:eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyIjp7ImlkIjoiNjYyOTUyOWVmZTIzNWJmYTQyYTFhNTdjIiwibmFtZSI6IlRlc3RVc2VyIFVwZGF0ZSIsImVtYWlsIjoiVGVzdFVzZXJAZ21haWwuY29tIiwibW9iaWxlX251bWJlciI6IjEyMzQ1Njc4OTAiLCJ1c2VyX3R5cGUiOiJBZG1pbiIsImlzX2FjdGl2ZSI6dHJ1ZSwiY3JlYXRlZF9hdCI6IjIwMjQtMDQtMjQgMTg6NDI6MzguNTMxICswMDowMDowMCIsInVwZGF0ZWRfYXQiOiIyMDI0LTA0LTI2IDEyOjI2OjI1LjAzNiArMDA6MDA6MDAifSwiaWF0IjoxNzE1MzUxNDU4LCJleHAiOjE3MTUzODc0NTh9.YKAHOa2vzLQyS2TUGTTP13DL8VS9mJ5dr-4DmjuMdpE 
+Authorization:eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyIjp7Im5hbWUiOiJHdWVzdCIsInVzZXJUeXBlIjoiR3Vlc3QifSwiaWF0IjoxNzE1NjE5ODkzLCJleHAiOjE3MTU2NTU4OTN9.4dy_w3aJ5iF1ZO5WFNc2u_KxeaLU5OYp1zjNHtlq_F8 
+
+### Generate Guest Access Token
+GET http://192.168.0.119:8000/api/app/guest-access
+Content-Type: application/json
+
+
+// ---------------------------------------------------- FEE REQUEST ------------------------------------------------- //
+### Add Fee
+POST http://192.168.0.119:8000/api/app/add-fee
+Content-Type: application/json
+Authorization: eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyIjp7ImlkIjoiNjYyOTUyOWVmZTIzNWJmYTQyYTFhNTdjIiwibmFtZSI6IlRlc3RVc2VyIFVwZGF0ZSIsImVtYWlsIjoiVGVzdFVzZXJAZ21haWwuY29tIiwibW9iaWxlX251bWJlciI6IjEyMzQ1Njc4OTAiLCJ1c2VyX3R5cGUiOiJBZG1pbiIsImlzX2FjdGl2ZSI6dHJ1ZSwiY3JlYXRlZF9hdCI6IjIwMjQtMDQtMjQgMTg6NDI6MzguNTMxICswMDowMDowMCIsInVwZGF0ZWRfYXQiOiIyMDI0LTA0LTI2IDEyOjI2OjI1LjAzNiArMDA6MDA6MDAifSwiaWF0IjoxNzE1ODcwOTAyLCJleHAiOjE3MTU5MDY5MDJ9.YTwJE9WtT4q8WpBBvZxv6qjhYnLYp9j8NyctRusqgRM
+
+{
+    "fee_type":"monthly",
+    "fee_amount":500,
+    "fee_discount":1.0
+}
+
+### Get Fee 
+GET http://192.168.0.119:8000/api/app/get-fee
+Content-Type: application/json
+Authorization: eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyIjp7ImlkIjoiNjYyOTUyOWVmZTIzNWJmYTQyYTFhNTdjIiwibmFtZSI6IlRlc3RVc2VyIFVwZGF0ZSIsImVtYWlsIjoiVGVzdFVzZXJAZ21haWwuY29tIiwibW9iaWxlX251bWJlciI6IjEyMzQ1Njc4OTAiLCJ1c2VyX3R5cGUiOiJBZG1pbiIsImlzX2FjdGl2ZSI6dHJ1ZSwiY3JlYXRlZF9hdCI6IjIwMjQtMDQtMjQgMTg6NDI6MzguNTMxICswMDowMDowMCIsInVwZGF0ZWRfYXQiOiIyMDI0LTA0LTI2IDEyOjI2OjI1LjAzNiArMDA6MDA6MDAifSwiaWF0IjoxNzE1ODcwOTAyLCJleHAiOjE3MTU5MDY5MDJ9.YTwJE9WtT4q8WpBBvZxv6qjhYnLYp9j8NyctRusqgRM
+
+### Enable fee discount 
+PUT http://192.168.0.119:8000/api/app/enable-discount/664637a4535c6ac54fbc3065
+Content-Type: application/json
+Authorization: eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyIjp7ImlkIjoiNjYyOTUyOWVmZTIzNWJmYTQyYTFhNTdjIiwibmFtZSI6IlRlc3RVc2VyIFVwZGF0ZSIsImVtYWlsIjoiVGVzdFVzZXJAZ21haWwuY29tIiwibW9iaWxlX251bWJlciI6IjEyMzQ1Njc4OTAiLCJ1c2VyX3R5cGUiOiJBZG1pbiIsImlzX2FjdGl2ZSI6dHJ1ZSwiY3JlYXRlZF9hdCI6IjIwMjQtMDQtMjQgMTg6NDI6MzguNTMxICswMDowMDowMCIsInVwZGF0ZWRfYXQiOiIyMDI0LTA0LTI2IDEyOjI2OjI1LjAzNiArMDA6MDA6MDAifSwiaWF0IjoxNzE1ODcwOTAyLCJleHAiOjE3MTU5MDY5MDJ9.YTwJE9WtT4q8WpBBvZxv6qjhYnLYp9j8NyctRusqgRM
+
+### Delete Fee
+DELETE  http://192.168.0.119:8000/api/app/delete-fee/664637a4535c6ac54fbc3067
+Content-Type: application/json
+Authorization: eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyIjp7ImlkIjoiNjYyOTUyOWVmZTIzNWJmYTQyYTFhNTdjIiwibmFtZSI6IlRlc3RVc2VyIFVwZGF0ZSIsImVtYWlsIjoiVGVzdFVzZXJAZ21haWwuY29tIiwibW9iaWxlX251bWJlciI6IjEyMzQ1Njc4OTAiLCJ1c2VyX3R5cGUiOiJBZG1pbiIsImlzX2FjdGl2ZSI6dHJ1ZSwiY3JlYXRlZF9hdCI6IjIwMjQtMDQtMjQgMTg6NDI6MzguNTMxICswMDowMDowMCIsInVwZGF0ZWRfYXQiOiIyMDI0LTA0LTI2IDEyOjI2OjI1LjAzNiArMDA6MDA6MDAifSwiaWF0IjoxNzE1ODcwOTAyLCJleHAiOjE3MTU5MDY5MDJ9.YTwJE9WtT4q8WpBBvZxv6qjhYnLYp9j8NyctRusqgRM

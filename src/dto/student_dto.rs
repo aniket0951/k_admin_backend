@@ -13,7 +13,8 @@ pub struct CreateStudentDTO {
     #[serde(rename="dob")]
     pub date_of_birth:String,
     pub address:String,
-    pub class_branch:String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub class_branch:Option<String>,
     #[serde(deserialize_with="deserialize_student_level")]
     pub level:StudentLevels,
     pub blood_group:String,

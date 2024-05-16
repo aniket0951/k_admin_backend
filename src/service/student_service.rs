@@ -1,5 +1,5 @@
-use std::path::PathBuf;
-
+use std::{path::PathBuf};
+extern crate hex;
 use actix_multipart::form::MultipartForm;
 use actix_web::{ web::{Data, Path ,Json}, HttpResponse, Responder};
 use bson::oid::ObjectId;
@@ -9,8 +9,9 @@ use crate::{dto::student_dto::{CreateParentDTO, CreateStudentDTO, StudentsDTO, U
 
 use super::jwt_service;
 
+#[allow(non_snake_case)]
 pub async fn add_student(db:Data<StudentRepo>, request:Json<CreateStudentDTO>) -> impl Responder {
-    if request.name.is_empty() || request.class_branch.is_empty() {
+    if request.name.is_empty() {
         return HttpResponse::BadRequest().json(
             ResponseBuilder::<()>::FailedResponse("Invalid request params".to_string())
         );
@@ -25,6 +26,10 @@ pub async fn add_student(db:Data<StudentRepo>, request:Json<CreateStudentDTO>) -
     let seq = helper::helper::Helper::generate_unique_number();
 
     let req_level = request.level.to_string();
+    let mut class_branch = String::new();
+    if !request.class_branch.is_none() {
+        class_branch = request.class_branch.as_ref().unwrap().to_string();
+    }
     let student = Students {
         id: None,
         name: request.name.to_string(),
@@ -32,7 +37,7 @@ pub async fn add_student(db:Data<StudentRepo>, request:Json<CreateStudentDTO>) -
         date_of_birth: request.date_of_birth.to_string(),
         address: request.address.to_string(),
         is_active_student: true,
-        class_branch: Some(request.class_branch.to_string()),
+        class_branch: Some(class_branch),
         parent: None,
         created_at: Some(bson::DateTime::now()),
         updated_at: Some(bson::DateTime::now()),
@@ -49,9 +54,11 @@ pub async fn add_student(db:Data<StudentRepo>, request:Json<CreateStudentDTO>) -
     };
 
     match db.add_student(student).await {
-        Ok(_) => {
+        Ok(resultId) => {
             HttpResponse::Ok().json(
-                ResponseBuilder::<()>::SuccessResponse(Messages::DataAddedSuccess.to_string(), None)
+                ResponseBuilder::SuccessResponse(Messages::DataAddedSuccess.to_string(), Some(
+                    resultId.inserted_id.as_object_id().unwrap().to_hex()
+                ))
             )
         },
         Err(e) => {
