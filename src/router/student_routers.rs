@@ -14,6 +14,7 @@ pub fn student_router() -> actix_web::Scope {
         .route("/get-student/{path}", web::get().to(get_student))
         .route("/update-student/{path}", web::put().to(update_student))
         .route("/pending-registration", web::get().to(get_pending_registration))
+        .route("/login/{path}", web::get().to(studnent_login))
 
 }
 

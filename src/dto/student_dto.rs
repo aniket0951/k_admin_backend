@@ -13,7 +13,8 @@ pub struct CreateStudentDTO {
     #[serde(rename="dob")]
     pub date_of_birth:String,
     pub address:String,
-    pub class_branch:String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub class_branch:Option<String>,
     #[serde(deserialize_with="deserialize_student_level")]
     pub level:StudentLevels,
     pub blood_group:String,
@@ -126,12 +127,15 @@ pub struct StudentsDTO  {
     pub student_id:Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub registration_status:Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub access_token:Option<String>,
     pub created_at:String,
     pub updated_at:String
 }
 
+#[allow(non_snake_case)]
 impl StudentsDTO {
-    pub fn init(student:Students) -> Self {
+    pub fn init(student:Students, accessToken:String) -> Self {
         
        let mut s =  Self {
             id: student.id.unwrap().to_string(),
@@ -154,6 +158,7 @@ impl StudentsDTO {
             geneder: None,
             student_id: None,
             registration_status: None,
+            access_token: None,
         };
 
         if !student.parent.is_none() {
@@ -162,6 +167,10 @@ impl StudentsDTO {
 
         if !s.profile_pic.is_none() {
             s.profile_pic = Some(format!("http://192.168.0.119:8000{}" , s.profile_pic.unwrap()))
+        }
+
+        if !accessToken.is_empty() {
+            s.access_token = Some(accessToken)
         }
 
         s.level = student.level.as_ref().map(|sl| sl.to_string());
@@ -173,6 +182,7 @@ impl StudentsDTO {
         s.geneder = student.geneder.as_ref().map(|sg| sg.to_string());
         s.student_id = student.student_id.as_ref().map(|si| si.to_string());
         s.registration_status = student.registration_status.as_ref().map(|sr| sr.to_string());
+        
 
         s
     }

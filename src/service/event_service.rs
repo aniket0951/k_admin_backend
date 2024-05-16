@@ -4,7 +4,7 @@ use actix_web::{web::{Data, Path,Json}, HttpResponse, Responder};
 use bson::oid::ObjectId;
 use chrono::{DateTime, Datelike, NaiveDateTime, Utc};
 use futures::{StreamExt, TryStreamExt};
-use crate::{dto::event_dto::{CreateEventDTO, GetEventsDTO, UpdateEventDTO}, helper::{app_errors::{AppError, Messages}, response::ResponseBuilder}, models::events::{Events, FileData}, repo::events_repo::EventRepo};
+use crate::{dto::event_dto::{CreateEventDTO, CreateFileDataDTO, GetEventsDTO, UpdateEventDTO}, helper::{app_errors::{AppError, Messages}, response::ResponseBuilder}, models::events::{Events, FileData}, repo::events_repo::EventRepo};
 
 
 pub async fn add_event(db:Data<EventRepo>, request:Json<CreateEventDTO>) -> impl Responder {
@@ -184,6 +184,47 @@ pub async fn get_events(db:Data<EventRepo>, path:Path<(i64, i64)>) -> impl Respo
         },
     }
 }
+
+#[allow(non_snake_case)]
+pub async fn add_video_link(db:Data<EventRepo>, path:Path<String>, requestData:Json<CreateFileDataDTO>) -> impl Responder {
+    match ObjectId::parse_str(path.into_inner()) {
+        Ok(objId) => {
+
+            let fileData = FileData {
+                file_type: requestData.file_type.to_owned(),
+                file_path: requestData.file_path.to_owned(),
+                created_at: Some(bson::DateTime::now()),
+            };
+
+            match db.add_file_data(objId, fileData).await {
+                Ok(updateResult) => {
+                    if updateResult.matched_count == 0 {
+                        return HttpResponse::NotFound().json(
+                            ResponseBuilder::<()>::FailedResponse(AppError::DataNotFoundError.to_string())
+                        )
+                    }
+
+                    HttpResponse::Ok().json(
+                        ResponseBuilder::<()>::SuccessResponse(
+                            Messages::DataUpdateSuccess.to_string(),
+                            None,
+                        )
+                    )
+                },
+                Err(e) => {
+                    HttpResponse::BadRequest().json(
+                        ResponseBuilder::<()>::FailedResponse(e.to_string())
+                    )
+                },
+            }
+        },
+        Err(_) => {
+            HttpResponse::BadRequest().json(
+                ResponseBuilder::<()>::InValidIdResponse()
+            )
+        },
+    }
+} 
 
 #[allow(non_snake_case)]
 pub async fn get_event(db:Data<EventRepo>, path:Path<String>) -> impl Responder {

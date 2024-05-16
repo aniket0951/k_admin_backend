@@ -29,6 +29,13 @@ pub struct GetFileData {
     pub file_path:String,
     pub created_at:String
 }
+
+#[derive(Serialize, Deserialize)]
+pub struct CreateFileDataDTO {
+    pub file_type:String,
+    pub file_path:String 
+}    
+
 #[derive(Serialize, Deserialize)]
 pub struct UpdateEventDTO {
     pub title:String,
@@ -58,6 +65,14 @@ impl GetEventsDTO {
         if !event.file_data.is_none() {
             let mut data:Vec<GetFileData> = Vec::new();
             for i in event.file_data.unwrap() {
+                if i.file_path.contains("http") {
+                    data.push( GetFileData {
+                        file_type: i.file_type,
+                        file_path:  i.file_path,
+                        created_at: i.created_at.unwrap().to_string(),
+                    });
+                    continue
+                }
                 data.push( GetFileData {
                     file_type: i.file_type,
                     file_path:  format!("http://192.168.0.119:8000{}",i.file_path),
