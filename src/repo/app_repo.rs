@@ -1,11 +1,11 @@
 use std::result;
 
 use actix_web::App;
-use bson::{doc, oid::ObjectId, Document};
+use bson::{doc, document, oid::ObjectId, Document};
 use futures::TryStreamExt;
-use mongodb::{options, results::{DeleteResult, InsertOneResult, UpdateResult}, Collection, Database};
+use mongodb::{options::{self, IndexOptions}, results::{DeleteResult, InsertOneResult, UpdateResult}, Collection, Database, IndexModel, error::ErrorKind};
 
-use crate::{dto::app_dto::CreateBranchDTO, helper::app_errors::AppError, models::app::{Branches, Fees}, StudentRepo};
+use crate::{dto::app_dto::{CreateBranchDTO, CreateCourseDTO}, helper::app_errors::AppError, models::app::{Branches, Courses, Fees}, StudentRepo};
 
 use super::events_repo::EventRepo;
 
@@ -13,17 +13,35 @@ use super::events_repo::EventRepo;
 pub struct AppRepo {
     branch_col:Collection<Document>,
     fees_col:Collection<Document>,
+    course_col:Collection<Document>,
     studentRepo:StudentRepo,
     eventRepo:EventRepo,
     
 }
 #[allow(non_snake_case)]
 impl AppRepo {
-
-    pub fn init(db:Database, studentRepo:StudentRepo, eventRepo:EventRepo) -> Self {
+    pub async fn init(db:Database, studentRepo:StudentRepo, eventRepo:EventRepo) -> Self {
         let branch_col = db.collection("branches");
         let fees_col = db.collection("fees_col");
-        AppRepo{ branch_col, fees_col ,studentRepo, eventRepo }
+        let course_col = db.collection("courses");
+
+        Self::createUniqueIndex(course_col.clone(), "name".to_string(), true).await;
+
+        AppRepo{ branch_col, fees_col ,studentRepo, eventRepo, course_col }
+    }
+
+    pub async fn createUniqueIndex(collection:Collection<Document>, filedName:String,isUnique:bool) {
+        let index_model = IndexModel::builder()
+            .keys(doc! { filedName.clone():1})
+            .options(IndexOptions::builder().unique(isUnique).build())
+            .build();
+
+        let result =  collection.create_index(index_model, None).await;
+        if result.is_err() {
+            println!("Index is not create on collection index filed {:?}",result.err());
+        }else {
+            println!("Index has been created")
+        }
     }
 
     pub async fn add_branch(&self, branch:Branches) -> Result<InsertOneResult, AppError> {
@@ -173,6 +191,93 @@ impl AppRepo {
             Err(e) => Err(AppError::CustomError(e.to_string())),
         }
     }
-    
+
+    // ------------------------------- COURSES ------------------------------------- //
+    pub async fn add_course(&self, course:Courses) -> Result<InsertOneResult, AppError> {
+        let bson_doc = match course.to_document() {
+            Ok(document) => document,
+            Err(e) => return Err(AppError::CustomError(e.to_string())),
+        };
+
+        match self.course_col.insert_one(bson_doc, None).await {
+            Ok(result) => {
+                Ok(result)
+            },
+            Err(err) => match *err.kind {
+                ErrorKind::Write(mongodb::error::WriteFailure::WriteError(ref write_error))
+                    if write_error.code == 11000 =>{
+                    return Err(AppError::CustomError("course already exists".to_string()));
+                }
+                _ => {
+                    Err(AppError::CustomError(err.to_string()))
+                }
+            },
+        }
+    }
+
+    pub async fn list_course(&self) -> Result<Vec<Courses>, AppError> {
+        let opt = options::FindOptions::builder()
+            .sort(doc! { "updated_at": -1})
+            .build();
+
+        let mut cursor = match self.course_col.find( None, opt).await {
+            Ok(cursor) => cursor,
+            Err(e) => return Err(AppError::CustomError(e.to_string())),
+        };
+
+        let mut courses:Vec<Courses> = Vec::new();
+
+        while let Some(course) = cursor 
+            .try_next()
+            .await
+            .ok()
+            .expect("Mapping Error")
+        {
+            courses.push(bson::from_document(course).unwrap())
+        }
+
+        Ok(courses)
+    }
+
+    pub async fn active_course(&self, active:bool, courseId:ObjectId) -> Result<UpdateResult, AppError> {
+        let update = doc! {
+            "$set": {
+                "is_active":active,
+                "updated_at":bson::DateTime::now(),
+            }
+        };
+
+        match self.course_col.update_one(doc! { "_id": courseId }, update, None).await {
+            Ok(result) => Ok(result),
+            Err(e) => {
+                Err(AppError::CustomError(e.to_string()))
+            },
+        }
+    }
+
+    pub async fn update_course(&self, courseId:ObjectId, course:CreateCourseDTO) -> Result<UpdateResult, AppError> {
+        let update = doc! {
+            "$set" : {
+                "name":course.name,
+                "description":course.description,
+                "course_duration":course.course_duration,
+                "updated_at":bson::DateTime::now()
+            }
+        };
+
+        match self.course_col.update_one(doc! { "_id":courseId }, update, None).await {
+            Ok(result) => Ok(result),
+            Err(err) => match *err.kind {
+                ErrorKind::Write(mongodb::error::WriteFailure::WriteError(ref write_error))
+                    if write_error.code == 11000 =>{
+                    return Err(AppError::CustomError("failed to update duplicate course".to_string()));
+                }
+                _ => {
+                    Err(AppError::CustomError(err.to_string()))
+                }
+            },
+        }
+    } 
+
 
 }

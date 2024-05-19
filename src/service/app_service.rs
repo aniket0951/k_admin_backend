@@ -3,8 +3,9 @@ use std::result;
 use actix_web::{ web::{Data,Path, Json}, HttpResponse, Responder};
 use bson::oid::ObjectId;
 use serde::{ser::SerializeStruct, Serialize};
+use validator::Validate;
 
-use crate::{dto::app_dto::{AppCountDTO, CreateBranchDTO, CreateFeesDTO, FeesDTO, GetBranchDTO}, helper::{app_errors::{AppError, Messages}, response::ResponseBuilder}, models::app::{Branches, Fees}, repo::app_repo::AppRepo};
+use crate::{dto::app_dto::{ActiveCourseRequestDTO, AppCountDTO, CoursesDTO, CreateBranchDTO, CreateCourseDTO, CreateFeesDTO, FeesDTO, GetBranchDTO}, helper::{app_errors::{AppError, Messages}, response::ResponseBuilder}, models::app::{Branches, Courses, Fees}, repo::app_repo::AppRepo};
 
 use super::jwt_service;
 
@@ -374,4 +375,157 @@ pub async fn delete_fee(db:Data<AppRepo>, path:Path<String>) -> impl Responder {
     }
 }
 
+
+// ------------------------------ COURSES ------------------------------------- //
+pub async fn add_course(db:Data<AppRepo>, course:Json<CreateCourseDTO>) -> impl Responder {
+    match course.validate() {
+        Ok(_) => {
+
+            let course_model = Courses {
+                id: None,
+                name: course.name.clone().unwrap().to_string(),
+                description: course.description.clone().unwrap().to_string(),
+                is_active: false,
+                course_duration: course.course_duration.to_owned(),
+                created_at: bson::DateTime::now(),
+                updated_at: bson::DateTime::now(),
+            };
+
+            match db.add_course(course_model).await {
+                Ok(result) => {
+                    HttpResponse::Ok().json(
+                        ResponseBuilder::SuccessResponse(
+                            Messages::DataAddedSuccess.to_string(),
+                            Some(result)
+                        )
+                    )
+                },
+                Err(e) => {
+                    HttpResponse::BadRequest().json(
+                        ResponseBuilder::<()>::FailedResponse(e.to_string())
+                    )
+                },
+            }
+        },
+        Err(e) => {
+            HttpResponse::BadRequest().json(
+                ResponseBuilder::<()>::FailedResponse(e.to_string())
+            )
+        },
+    }
+}
+
+pub async fn list_course(db:Data<AppRepo>) -> impl Responder {
+    match db.list_course().await {
+        Ok(courses) => {
+            if courses.len() == 0 {
+                return HttpResponse::NotFound().json(
+                    ResponseBuilder::<()>::FailedResponse(AppError::DataNotFoundError.to_string())
+                );
+            }
+
+            let mut course_dto:Vec<CoursesDTO> = Vec::new();
+
+            for i in courses {
+                course_dto.push(CoursesDTO::init(i))
+            }
+
+            HttpResponse::Ok().json(
+                ResponseBuilder::SuccessResponse(
+                    Messages::DataFetchSuccess.to_string(),
+                    Some(course_dto)
+                )
+            )
+        },
+        Err(e) => {
+            HttpResponse::InternalServerError().json(
+                ResponseBuilder::<()>::FailedResponse(e.to_string())
+            )
+        },
+    }
+}
+
+#[allow(non_snake_case)]
+pub async fn active_course(db:Data<AppRepo>, args:Json<ActiveCourseRequestDTO>) -> impl Responder {
+    match args.validate() {
+        Ok(_) => {
+            match ObjectId::parse_str(args.id.as_ref().unwrap().to_string()) {
+                Ok(objId) => {
+                    match db.active_course(args.isActive.unwrap().to_owned(), objId).await {
+                        Ok(result) => {
+                            if result.matched_count == 0 {
+                                return HttpResponse::NotFound().json(
+                                    ResponseBuilder::<()>::FailedResponse(AppError::DataNotFoundError.to_string())
+                                );
+                            }
+                            HttpResponse::Ok().json(
+                                ResponseBuilder::<()>::SuccessResponse(
+                                    Messages::DataUpdateSuccess.to_string(),
+                                    None
+                                )
+                            )
+                        },
+                        Err(e) => {
+                            HttpResponse::BadRequest().json(
+                                ResponseBuilder::<()>::FailedResponse(e.to_string())
+                            )
+                        },
+                    }
+                },
+                Err(_) => {
+                    HttpResponse::BadRequest().json(
+                        ResponseBuilder::<()>::InValidIdResponse()
+                    )
+                },
+            }
+        },
+        Err(e) => {
+            HttpResponse::BadRequest().json(
+                ResponseBuilder::<()>::FailedResponse(e.to_string())
+            )
+        },
+    }
+}
+#[allow(non_snake_case)]
+pub async fn update_course(db:Data<AppRepo>, args:Json<CreateCourseDTO>) -> impl Responder {
+    match args.validate() {
+        Ok(_) => {
+            match ObjectId::parse_str(args.id.clone()) {
+                Ok(objId) =>{
+                    match db.update_course(objId, args.into_inner()).await {
+                        Ok(result) => {
+                            if result.matched_count == 0 {
+                                return HttpResponse::NotFound().json(
+                                    ResponseBuilder::<()>::FailedResponse(Messages::DataUpdateFailed.to_string())
+                                );
+                            }
+
+                            HttpResponse::Ok().json(
+                                ResponseBuilder::<()>::SuccessResponse(
+                                    Messages::DataUpdateSuccess.to_string(),
+                                    None
+                                )
+                            )
+                        },
+                        Err(e) => {
+                            HttpResponse::BadRequest().json(
+                                ResponseBuilder::<()>::FailedResponse(e.to_string())
+                            )
+                        },
+                    }
+                },
+                Err(_) => {
+                    HttpResponse::BadRequest().json(
+                        ResponseBuilder::<()>::InValidIdResponse()
+                    )
+                },
+            }
+        },
+        Err(e) => {
+            HttpResponse::BadRequest().json(
+                ResponseBuilder::<()>::FailedResponse(e.to_string())
+            )
+        },
+    }
+}
 
