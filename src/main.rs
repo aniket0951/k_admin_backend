@@ -38,7 +38,8 @@ async fn main() -> std::io::Result<()> {
     let db_user_db = Data::new(db_user);
     let db_student = Data::new(StudentRepo::init(db.clone()));
     let db_event = Data::new(EventRepo::init(db.clone()));
-    let db_app = Data::new(AppRepo::init(db, studentRepo, eventRepo));
+    let appRepo = AppRepo::init(db, studentRepo, eventRepo).await;
+    let db_app = Data::new(appRepo);
 
     println!("🚀 Server started successfully!");
 

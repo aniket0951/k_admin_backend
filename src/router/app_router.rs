@@ -18,4 +18,11 @@ pub fn app_router() -> actix_web::Scope {
         .route("/get-fee", web::get().to(get_fee))
         .route("/enable-discount/{path}", web::put().to(make_discount_Active))
         .route("/delete-fee/{path}", web::delete().to(delete_fee))
+
+        // course router
+        .route("/add-course", web::route().to(add_course))
+        .route("/list-course", web::route().to(list_course))
+        .route("/active-course", web::route().to(active_course))
+        .route("/update-course", web::route().to(update_course))
+
 }

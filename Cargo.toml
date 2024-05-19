@@ -11,7 +11,7 @@ actix-files = "0.6.5"
 actix-multipart = "0.6.1"
 actix-service = "2.0.2"
 actix-web = "4.5.1"
-validator = { version = "0.12", features = ["derive"] }
+validator = { version = "0.14", features = ["derive"] }
 lazy_static = "1.4.0"
 regex = "1.5.6"
 actix-web-static-files = "4.0.1"

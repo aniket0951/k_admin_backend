@@ -1,7 +1,8 @@
 use serde::{Deserialize, Serialize};
 use serde::de::{self, Visitor};
-use crate::models::app::{Branches, Fees};
+use crate::models::app::{Branches, Courses, Fees};
 use std::fmt::{self};
+use validator::Validate;
 
 #[derive(Serialize, Deserialize)]
 pub struct CreateBranchDTO{
@@ -129,6 +130,48 @@ impl FeesDTO {
             fee_discount: feeModel.fee_discount,
             created_at: feeModel.created_at.to_string(),
             updated_at: feeModel.updated_at.to_string(),
+        }
+    }
+}
+#[derive(Serialize, Deserialize, Validate)]
+pub struct CreateCourseDTO {
+    pub id:String,
+    #[validate(required, length(min=1, message="Name can not be empty"))]
+    pub name:Option<String>,
+    #[validate(required, length(min=1, message="description can not be empty"))]
+    pub description:Option<String>,
+    pub course_duration:String
+}
+#[derive(Serialize, Deserialize, Validate)]
+#[allow(non_snake_case)]
+pub struct ActiveCourseRequestDTO {
+    #[validate(required, length(min=1, message="Id can not be empty"))]
+    pub id:Option<String>,
+    #[validate(required)]
+    pub isActive:Option<bool>
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct CoursesDTO {
+    pub id:String,
+    pub name:String,
+    pub description:String,
+    pub course_duration:String,
+    pub is_active:bool,
+    pub created_at:String,
+    pub updated_at:String
+}
+
+impl CoursesDTO {
+    pub fn init(course:Courses) -> Self {
+        Self {
+            id: course.id.unwrap().to_string(),
+            name: course.name.to_string(),
+            description: course.description.to_string(),
+            course_duration: course.course_duration.to_string(),
+            created_at: course.created_at.to_string(),
+            updated_at: course.updated_at.to_string(),
+            is_active: course.is_active,
         }
     }
 }
