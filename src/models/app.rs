@@ -52,3 +52,40 @@ impl Courses {
         bson::to_document(self)
     }
 }
+#[derive(Serialize, Deserialize)]
+#[allow(non_snake_case)]
+pub struct Facilities {
+    #[serde(rename="_id", skip_serializing_if="Option::is_none")]
+    pub id:Option<ObjectId>,
+    pub title:String,
+    pub description:String,
+    #[serde(skip_serializing_if="Option::is_none")]
+    pub imageUrl:Option<String>,
+    pub created_at:bson::DateTime,
+    pub updated_at:bson::DateTime
+}
+
+impl Facilities {
+    pub fn to_document(&self) -> Result<Document, mongodb::bson::ser::Error> {
+        bson::to_document(self)
+    }
+}
+#[derive(Serialize, Deserialize)]
+pub struct Enquiries {
+    #[serde(rename="_id",skip_serializing_if="Option::is_none")]
+    pub id:Option<ObjectId>,
+    pub name:String,
+    pub email:String,
+    pub contact:String,
+    pub subject:String,
+    pub message:String,
+    pub created_at:bson::DateTime,
+    pub updated_at:bson::DateTime
+}
+
+impl Enquiries {
+    
+    pub fn to_document(&self) -> Result<Document, mongodb::bson::ser::Error> {
+        bson::to_document(self)
+    }
+}

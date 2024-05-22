@@ -20,9 +20,23 @@ pub fn app_router() -> actix_web::Scope {
         .route("/delete-fee/{path}", web::delete().to(delete_fee))
 
         // course router
-        .route("/add-course", web::route().to(add_course))
-        .route("/list-course", web::route().to(list_course))
-        .route("/active-course", web::route().to(active_course))
-        .route("/update-course", web::route().to(update_course))
+        .route("/add-course", web::post().to(add_course))
+        .route("/list-course", web::get().to(list_course))
+        .route("/active-course", web::post().to(active_course))
+        .route("/update-course", web::put().to(update_course))
+        .route("/delete-course/{path}", web::delete().to(delete_course))
+        .route("/get-course/{path}", web::get().to(get_course))
 
+        // facilities router
+        .route("/add_facilities", web::post().to(add_facilities))
+        .route("/get_facilities/{path}", web::get().to(get_facilities))
+        .route("/list_facilities", web::get().to(list_facilities))
+        
+        // enquiries
+        .route("/add_enquiry", web::post().to(add_enquiry))
+        .route("/list_enquiry", web::get().to(list_enquires))
+
+
+        
+        
 }
