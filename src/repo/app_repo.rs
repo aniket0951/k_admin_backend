@@ -5,7 +5,7 @@ use bson::{doc, document, oid::ObjectId, Document};
 use futures::TryStreamExt;
 use mongodb::{options::{self, IndexOptions}, results::{DeleteResult, InsertOneResult, UpdateResult}, Collection, Database, IndexModel, error::ErrorKind};
 
-use crate::{dto::app_dto::{CreateBranchDTO, CreateCourseDTO}, helper::app_errors::AppError, models::app::{Branches, Courses, Fees}, StudentRepo};
+use crate::{dto::app_dto::{CreateBranchDTO, CreateCourseDTO}, helper::app_errors::AppError, models::app::{Branches, Courses, Enquiries, Facilities, Fees}, StudentRepo};
 
 use super::events_repo::EventRepo;
 
@@ -14,6 +14,8 @@ pub struct AppRepo {
     branch_col:Collection<Document>,
     fees_col:Collection<Document>,
     course_col:Collection<Document>,
+    facilities_col:Collection<Document>,
+    enquiry_col:Collection<Document>,
     studentRepo:StudentRepo,
     eventRepo:EventRepo,
     
@@ -24,10 +26,12 @@ impl AppRepo {
         let branch_col = db.collection("branches");
         let fees_col = db.collection("fees_col");
         let course_col = db.collection("courses");
+        let facilities_col = db.collection("facilities");
+        let enquiry_col = db.collection("enquiries");
 
         Self::createUniqueIndex(course_col.clone(), "name".to_string(), true).await;
 
-        AppRepo{ branch_col, fees_col ,studentRepo, eventRepo, course_col }
+        AppRepo{ branch_col, fees_col ,studentRepo, eventRepo, course_col, facilities_col, enquiry_col }
     }
 
     pub async fn createUniqueIndex(collection:Collection<Document>, filedName:String,isUnique:bool) {
@@ -278,6 +282,109 @@ impl AppRepo {
             },
         }
     } 
+
+    pub async fn delete_course(&self, courseId:ObjectId) -> Result<DeleteResult, AppError> {
+        match self.course_col.delete_one( doc! { "_id":courseId, "is_active":false }, None).await {
+            Ok(result) => Ok(result),
+            Err(e) => Err(AppError::CustomError(e.to_string())),
+        }
+    }
+
+    pub async fn get_course(&self, courseId:ObjectId) -> Result<Courses, AppError> {
+        match self.course_col.find_one( doc! { "_id": courseId }, None).await {
+            Ok(Some(doument)) => {
+                let course = bson::from_document(doument).map_err(|e| AppError::CustomError(e.to_string()));
+                Ok(course.unwrap())
+            },
+            Ok(None) => Err(AppError::DataNotFoundError),
+            Err(e) => Err(AppError::CustomError(e.to_string())),
+        }
+    }
+
+
+    // ------------------------------- FACILITIES ------------------------------------- //
+    pub async fn add_facilities(&self, facility:Facilities) -> Result<InsertOneResult, AppError> {
+        let bson_doc = match facility.to_document() {
+            Ok(document) => document,
+            Err(e) => return Err(AppError::CustomError(e.to_string())),
+        };
+
+        match self.facilities_col.insert_one(bson_doc, None).await {
+            Ok(result) => Ok(result),
+            Err(e) => Err(AppError::CustomError(e.to_string())),
+        }
+    }
+
+    pub async fn get_facilities(&self, objId:ObjectId) -> Result<Facilities, AppError> {
+        match self.facilities_col.find_one(doc! { "_id":objId}, None).await {
+            Ok(Some(document)) => {
+                Ok(bson::from_document(document).unwrap())
+            },
+            Ok(None) => return Err(AppError::DataNotFoundError),
+            Err(e) => Err(AppError::CustomError(e.to_string())),
+        }
+    }
+
+    pub async fn list_facilities(&self) -> Result<Vec<Facilities>, AppError> {
+        let opt = options::FindOptions::builder()
+            .sort(doc! {"created_at":-1})
+            .build();
+        let mut cursor = match self.facilities_col.find(None, opt).await {
+            Ok(cursor) => cursor,
+            Err(e) => return Err(AppError::CustomError(e.to_string())),
+        };
+
+        let mut facilities:Vec<Facilities> = Vec::new();
+
+        while let  Some(facilitie) = cursor
+            .try_next()
+            .await
+            .ok()
+            .expect("Mapping Error")
+        {
+            facilities.push(bson::from_document(facilitie).unwrap())
+        }
+
+        Ok(facilities)
+    }
+
+
+    // ------------------------------- ENQUIRY ------------------------------------- //
+    pub async fn add_enquiry(&self, enquiry:Enquiries) -> Result<InsertOneResult, AppError> {
+        let bson_document = match enquiry.to_document() {
+            Ok(document) => document,
+            Err(e) => return Err(AppError::CustomError(e.to_string())),
+        };
+
+        match self.enquiry_col.insert_one(bson_document, None).await {
+            Ok(result) => Ok(result),
+            Err(e) => Err(AppError::CustomError(e.to_string())),
+        }
+    }
+
+    pub async fn list_enquires(&self) -> Result<Vec<Enquiries>, AppError> {
+        let opt = options::FindOptions::builder()
+            .sort(doc! {"created_at":-1})
+            .build();
+        let mut cursor = match self.enquiry_col.find(None, opt).await {
+            Ok(cursor) => cursor,
+            Err(e) => return Err(AppError::CustomError(e.to_string())),
+        };
+
+        let mut enquires:Vec<Enquiries> = Vec::new();
+
+        while let  Some(enquire) = cursor
+            .try_next()
+            .await
+            .ok()
+            .expect("Mapping Error")
+        {
+            enquires.push(bson::from_document(enquire).unwrap())
+        }
+
+        Ok(enquires)
+    }
+
 
 
 }

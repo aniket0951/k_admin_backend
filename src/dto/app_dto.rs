@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 use serde::de::{self, Visitor};
-use crate::models::app::{Branches, Courses, Fees};
+use crate::models::app::{Branches, Courses, Enquiries, Facilities, Fees};
 use std::fmt::{self};
 use validator::Validate;
 
@@ -172,6 +172,79 @@ impl CoursesDTO {
             created_at: course.created_at.to_string(),
             updated_at: course.updated_at.to_string(),
             is_active: course.is_active,
+        }
+    }
+}
+#[derive(Serialize, Deserialize, Validate)]
+pub struct CreateFacilities {
+    #[validate(required,length(min=1,message="title can not be empty"))]
+    pub title:Option<String>,
+    #[validate(required, length(min=1,message="description can not be empty"))]
+    pub description:Option<String>,
+    #[serde(skip_serializing_if="Option::is_none")]
+    pub image_url:Option<String>,
+}
+
+
+#[derive(Serialize, Deserialize)]
+#[allow(non_snake_case)]
+pub struct FacilitiesDTO {
+    pub id:String,
+    pub title:String,
+    pub description:String,
+    pub imageUrl:Option<String>,
+    pub created_at:String,
+    pub updated_at:String
+}
+
+#[allow(non_snake_case)]
+impl FacilitiesDTO {
+    
+    pub fn init(facilities:Facilities) -> Self {
+        let imgUrl = facilities.imageUrl.as_ref().map(|sl| sl.to_string());;
+        Self {
+            id: facilities.id.unwrap().to_hex(),
+            title: facilities.title,
+            description: facilities.description,
+            imageUrl: imgUrl,
+            created_at: facilities.created_at.to_string(),
+            updated_at: facilities.updated_at.to_string(),
+        }
+    }
+}
+#[derive(Serialize,Deserialize)]
+pub struct CreateEnquiryDTO {
+    pub name:String,
+    pub email:String,
+    pub contact:String,
+    pub subject:String,
+    pub message:String
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct EnquiriesDTO {
+    pub id:String,
+    pub name:String,
+    pub email:String,
+    pub contact:String,
+    pub subject:String,
+    pub message:String,
+    pub created_at:String,
+    pub updated_at:String
+}
+
+impl EnquiriesDTO {
+    
+    pub fn init(enquire:Enquiries) -> Self {
+        Self {
+            id: enquire.id.unwrap().to_string(),
+            name: enquire.name,
+            email: enquire.email,
+            contact: enquire.contact,
+            subject: enquire.subject,
+            message: enquire.message,
+            created_at: enquire.created_at.to_string(),
+            updated_at: enquire.updated_at.to_string()
         }
     }
 }

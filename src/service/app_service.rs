@@ -1,11 +1,11 @@
-use std::result;
+use std::{path, result};
 
 use actix_web::{ web::{Data,Path, Json}, HttpResponse, Responder};
 use bson::oid::ObjectId;
 use serde::{ser::SerializeStruct, Serialize};
 use validator::Validate;
 
-use crate::{dto::app_dto::{ActiveCourseRequestDTO, AppCountDTO, CoursesDTO, CreateBranchDTO, CreateCourseDTO, CreateFeesDTO, FeesDTO, GetBranchDTO}, helper::{app_errors::{AppError, Messages}, response::ResponseBuilder}, models::app::{Branches, Courses, Fees}, repo::app_repo::AppRepo};
+use crate::{dto::app_dto::{ActiveCourseRequestDTO, AppCountDTO, CoursesDTO, CreateBranchDTO, CreateCourseDTO, CreateEnquiryDTO, CreateFacilities, CreateFeesDTO, EnquiriesDTO, FacilitiesDTO, FeesDTO, GetBranchDTO}, helper::{app_errors::{AppError, Messages}, response::ResponseBuilder}, models::app::{Branches, Courses, Enquiries, Facilities, Fees}, repo::app_repo::AppRepo};
 
 use super::jwt_service;
 
@@ -528,4 +528,220 @@ pub async fn update_course(db:Data<AppRepo>, args:Json<CreateCourseDTO>) -> impl
         },
     }
 }
+
+#[allow(non_snake_case)]
+pub async fn delete_course(db:Data<AppRepo>, path:Path<String>) -> impl Responder {
+    match ObjectId::parse_str(path.into_inner()) {
+        Ok(objId) => {
+            match db.delete_course(objId).await {
+                Ok(result) =>{
+                    if result.deleted_count == 0 {
+                        return HttpResponse::NotFound().json(
+                            ResponseBuilder::<()>::FailedResponse(Messages::DataDeleteFailed.to_string())
+                        );
+                    }
+
+                    HttpResponse::Ok().json(
+                        ResponseBuilder::<()>::SuccessResponse(
+                            Messages::DataDeleteSucess.to_string(),
+                            None
+                        )
+                    )
+                },
+                Err(err) => {
+                    HttpResponse::BadRequest().json(
+                        ResponseBuilder::<()>::FailedResponse(err.to_string())
+                    )
+                },
+            }
+        },
+        Err(_) => {
+            HttpResponse::BadRequest().json(
+                ResponseBuilder::<()>::InValidIdResponse()
+            )
+        },
+    }
+}
+
+#[allow(non_snake_case)]
+pub async fn get_course(db:Data<AppRepo>, path:Path<String>) -> impl Responder {
+    match ObjectId::parse_str(path.into_inner()) {
+        Ok(objId) => {
+            match db.get_course(objId).await {
+                Ok(course) => {
+                    HttpResponse::Ok().json(
+                        ResponseBuilder::SuccessResponse(
+                            Messages::DataFetchSuccess.to_string(),
+                            Some(CoursesDTO::init(course))
+                        )
+                    )
+                },
+                Err(e) => {
+                    HttpResponse::BadRequest().json(
+                        ResponseBuilder::<()>::FailedResponse(e.to_string())
+                    )
+                },
+            }
+        },
+        Err(_) => {
+            HttpResponse::BadRequest().json(
+                ResponseBuilder::<()>::InValidIdResponse()
+            )
+        },
+    }
+}
+
+// ------------------------------ FACILITIES ------------------------------------- //
+#[allow(non_snake_case)]
+pub async fn add_facilities(db:Data<AppRepo>, request:Json<CreateFacilities>) -> impl Responder {
+    match request.validate() {
+        Ok(_) => {
+            let faciliti = Facilities {
+                id: None,
+                title: request.title.to_owned().unwrap(),
+                description: request.description.to_owned().unwrap(),
+                imageUrl: None,
+                created_at:bson::DateTime::now(),
+                updated_at:bson::DateTime::now(),
+            };
+            match db.add_facilities(faciliti).await {
+                Ok(result) => {
+                    HttpResponse::Ok().json(
+                        ResponseBuilder::SuccessResponse(
+                            Messages::DataAddedSuccess.to_string(),
+                            Some(result)
+                        )
+                    )
+                },
+                Err(e) => {
+                    HttpResponse::BadRequest().json(
+                        ResponseBuilder::<()>::FailedResponse(e.to_string())
+                    )
+                },
+            }
+        },
+        Err(e) => {
+            HttpResponse::BadRequest().json(
+                ResponseBuilder::<()>::FailedResponse(e.to_string())
+            )
+        },
+    }
+}
+#[allow(non_snake_case)]
+pub async fn get_facilities(db:Data<AppRepo>, path:Path<String>) -> impl Responder {
+    match ObjectId::parse_str(path.into_inner()) {
+        Ok(objId) => {
+            match db.get_facilities(objId).await {
+                Ok(document) => {
+                    HttpResponse::Ok().json(
+                        ResponseBuilder::SuccessResponse(
+                            Messages::DataFetchSuccess.to_string(),
+                            Some(FacilitiesDTO::init(document))
+                        )
+                    )
+                },
+                Err(e) => {
+                    HttpResponse::BadRequest().json(
+                        ResponseBuilder::<()>::FailedResponse(e.to_string())
+                    )
+                },
+            }
+        },
+        Err(_) => {
+            HttpResponse::BadRequest().json(
+                ResponseBuilder::<()>::InValidIdResponse()
+            )
+        },
+    }
+}
+#[allow(non_snake_case)]
+pub async fn list_facilities(db:Data<AppRepo>) -> impl Responder {
+    match db.list_facilities().await {
+        Ok(facilities) => {
+            if facilities.len() == 0 {
+                return  HttpResponse::NotFound().json(
+                    ResponseBuilder::<()>::FailedResponse(AppError::DataNotFoundError.to_string())
+                );
+            }
+            let mut facilitiesDTO:Vec<FacilitiesDTO> = Vec::new();
+            for i in facilities {
+                facilitiesDTO.push(FacilitiesDTO::init(i))
+            }
+
+            HttpResponse::Ok().json(
+                ResponseBuilder::SuccessResponse(
+                    Messages::DataFetchSuccess.to_string(),
+                    Some(facilitiesDTO)
+                )
+            )
+        },
+        Err(e) => {
+            HttpResponse::BadRequest().json(
+                ResponseBuilder::<()>::FailedResponse(e.to_string())
+            )
+        },
+    }
+}
+
+// ------------------------------ ENQUIRES ------------------------------------- //
+
+pub async fn add_enquiry(db:Data<AppRepo>, enquire:Json<CreateEnquiryDTO>) -> impl Responder {
+    let enquire_m = Enquiries {
+        id: None,
+        name: enquire.name.to_string(),
+        email: enquire.email.to_string(),
+        contact: enquire.contact.to_string(),
+        subject: enquire.subject.to_string(),
+        message: enquire.message.to_string(),
+        created_at: bson::DateTime::now(),
+        updated_at: bson::DateTime::now(),
+    };
+    match db.add_enquiry(enquire_m).await {
+        Ok(result) => {
+            HttpResponse::Ok().json(
+                ResponseBuilder::SuccessResponse(
+                    Messages::DataAddedSuccess.to_string(),
+                    Some(result)
+                )
+            )
+        },
+        Err(e) => {
+            HttpResponse::BadRequest().json(
+                ResponseBuilder::<()>::FailedResponse(e.to_string())
+            )
+        },
+    }
+}
+
+
+#[allow(non_snake_case)]
+pub async fn list_enquires(db:Data<AppRepo>) -> impl Responder {
+    match db.list_enquires().await {
+        Ok(enquires) => {
+            if enquires.len() == 0 {
+                return  HttpResponse::NotFound().json(
+                    ResponseBuilder::<()>::FailedResponse(AppError::DataNotFoundError.to_string())
+                );
+            }
+            let mut enquiriesDTO:Vec<EnquiriesDTO> = Vec::new();
+            for i in enquires {
+                enquiriesDTO.push(EnquiriesDTO::init(i))
+            }
+
+            HttpResponse::Ok().json(
+                ResponseBuilder::SuccessResponse(
+                    Messages::DataFetchSuccess.to_string(),
+                    Some(enquiriesDTO)
+                )
+            )
+        },
+        Err(e) => {
+            HttpResponse::BadRequest().json(
+                ResponseBuilder::<()>::FailedResponse(e.to_string())
+            )
+        },
+    }
+}
+
+
 
