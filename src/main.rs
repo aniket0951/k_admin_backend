@@ -60,8 +60,8 @@ async fn main() -> std::io::Result<()> {
             .wrap(Logger::default())
             
     })
-    .bind(("127.0.0.1", 8000))?
-    // .bind(("192.168.0.119", 8000))?
+    // .bind(("127.0.0.1", 8000))?
+    .bind(("192.168.0.119", 8000))?
     .run()
     .await 
 

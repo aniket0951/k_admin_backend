@@ -31,7 +31,12 @@ pub fn app_router() -> actix_web::Scope {
         .route("/add_facilities", web::post().to(add_facilities))
         .route("/get_facilities/{path}", web::get().to(get_facilities))
         .route("/list_facilities", web::get().to(list_facilities))
+        .route("/update_facilities/{path}", web::put().to(update_facilities))
+        .route("/uploade_facility_image/{path}", web::post().to(upload_facility_image))
+        .route("/delete_facilities/{path}", web::delete().to(delete_facility))
+    
         
+
         // enquiries
         .route("/add_enquiry", web::post().to(add_enquiry))
         .route("/list_enquiry", web::get().to(list_enquires))

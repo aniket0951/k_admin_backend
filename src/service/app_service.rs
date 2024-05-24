@@ -1,11 +1,12 @@
-use std::{path, result};
+use std::{path::PathBuf};
+use actix_multipart::form::MultipartForm;
 
 use actix_web::{ web::{Data,Path, Json}, HttpResponse, Responder};
 use bson::oid::ObjectId;
 use serde::{ser::SerializeStruct, Serialize};
 use validator::Validate;
 
-use crate::{dto::app_dto::{ActiveCourseRequestDTO, AppCountDTO, CoursesDTO, CreateBranchDTO, CreateCourseDTO, CreateEnquiryDTO, CreateFacilities, CreateFeesDTO, EnquiriesDTO, FacilitiesDTO, FeesDTO, GetBranchDTO}, helper::{app_errors::{AppError, Messages}, response::ResponseBuilder}, models::app::{Branches, Courses, Enquiries, Facilities, Fees}, repo::app_repo::AppRepo};
+use crate::{dto::{app_dto::{ActiveCourseRequestDTO, AppCountDTO, CoursesDTO, CreateBranchDTO, CreateCourseDTO, CreateEnquiryDTO, CreateFacilities, CreateFeesDTO, EnquiriesDTO, FacilitiesDTO, FeesDTO, GetBranchDTO}, student_dto::UploadProfileDTO}, helper::{app_errors::{AppError, Messages}, response::ResponseBuilder}, models::app::{Branches, Courses, Enquiries, Facilities, Fees}, repo::app_repo::AppRepo};
 
 use super::jwt_service;
 
@@ -680,6 +681,163 @@ pub async fn list_facilities(db:Data<AppRepo>) -> impl Responder {
                 ResponseBuilder::<()>::FailedResponse(e.to_string())
             )
         },
+    }
+}
+
+#[allow(non_snake_case)]
+pub async fn update_facilities(db:Data<AppRepo>, path:Path<String>, facility:Json<CreateFacilities>) -> impl Responder {
+    match ObjectId::parse_str(path.into_inner()) {
+        Ok(objID) => {
+            let isImage = !facility.image_url.is_none();
+            match db.update_facilities(objID, facility.into_inner(), isImage).await {
+                Ok(result) => {
+                    if result.matched_count == 0 {
+                        return HttpResponse::BadRequest().json(
+                            ResponseBuilder::<()>::FailedResponse(AppError::DataNotFoundError.to_string())
+                        );
+                    }
+
+                    HttpResponse::Ok().json(
+                        ResponseBuilder::<()>::SuccessResponse(
+                            Messages::DataUpdateSuccess.to_string(),
+                            None
+                        )
+                    )
+                },
+                Err(e) => {
+                    HttpResponse::BadRequest().json(
+                        ResponseBuilder::<()>::FailedResponse(e.to_string())
+                    )
+                },
+            }
+        },
+        Err(_) => {
+            HttpResponse::BadRequest().json(
+                ResponseBuilder::<()>::InValidIdResponse()
+            )
+        },
+    }
+}
+
+#[allow(non_snake_case)]
+pub async fn upload_facility_image(db:Data<AppRepo>,path:Path<String> , payload:MultipartForm<UploadProfileDTO>) -> impl Responder {
+    match ObjectId::parse_str(path.into_inner()) {
+        Ok(objId) => {
+                    
+            let f_file_path = format!("/static/facilities/");
+        
+            let temp_file_path = payload.file.file.path();
+            let file_name: &str = payload
+                .file
+                .file_name
+                .as_ref()
+                .map(|m| m.as_ref())
+                .unwrap_or("null");
+        
+            let mut file_path = PathBuf::from(format!(".{}",f_file_path));
+            file_path.push(&sanitize_filename::sanitize(&file_name));
+            match std::fs::rename(temp_file_path, file_path.clone()) {
+                Ok(_) => {
+
+                    // save the old profile pic path if the user have
+                    let student = match delete_old_facility_pic(db.clone(), objId).await {
+                        Ok(s) => s,
+                        Err(e) =>{
+                            return HttpResponse::BadRequest().json(
+                                ResponseBuilder::<()>::FailedResponse(e.to_string())
+                            )
+                        },
+                    };
+                    let facility = CreateFacilities {
+                        title: None,
+                        description: None,
+                        image_url: Some(format!("{}{}",f_file_path, file_name)),
+                    };
+                    match db.update_facilities(objId, facility, true).await {
+                        Ok(result) => {
+                            if result.matched_count == 0 {
+                                let _ = std::fs::remove_file(file_path);
+                                return HttpResponse::BadRequest().json(
+                                    ResponseBuilder::<()>::FailedResponse(Messages::DataUpdateFailed.to_string())
+                                )
+                            }
+
+                            // check if old profile pic there then remove old file
+                            if !student.imageUrl.is_none() {
+                                let res = std::fs::remove_file(format!(".{}",student.imageUrl.unwrap().to_string()));
+                                if res.is_err() {
+                                    println!("Error while deleting a old")
+                                }
+                            }
+
+                            HttpResponse::Ok().json(
+                                ResponseBuilder::<()>::SuccessResponse(
+                                    Messages::DataUpdateSuccess.to_string(),
+                                    None
+                                )
+                            )
+                        },
+                        Err(e) => {
+                            let _ = std::fs::remove_file(file_path);
+                            HttpResponse::InternalServerError().json(
+                                ResponseBuilder::<()>::FailedResponse(e.to_string())
+                            )
+                        },
+                    }
+                },
+                Err(e) => return HttpResponse::InternalServerError().json(e.to_string()),
+            }
+        
+        },
+        Err(_) => {
+            HttpResponse::BadRequest().json(
+                ResponseBuilder::<()>::InValidIdResponse()
+            )
+        },
+    }
+
+}
+#[allow(non_snake_case)]
+pub async fn delete_facility(db:Data<AppRepo>, path:Path<String>) -> impl Responder {
+    match ObjectId::parse_str(path.into_inner()) {
+        Ok(objId) => {
+            match db.delete_facility(objId).await {
+                Ok(result) => {
+                    if result.deleted_count  == 0 {
+                        return HttpResponse::BadRequest().json(
+                            ResponseBuilder::<()>::FailedResponse(AppError::DataNotFoundError.to_string())
+                        );
+                    }
+
+                    HttpResponse::Ok().json(
+                        ResponseBuilder::<()>::SuccessResponse(
+                            Messages::DataUpdateSuccess.to_string(),
+                            None
+                        )
+                    )
+                },
+                Err(e) => {
+                    HttpResponse::BadRequest().json(
+                        ResponseBuilder::<()>::FailedResponse(e.to_string())
+                    )
+                },
+            }
+        },
+        Err(_) => {
+            HttpResponse::BadRequest().json(
+                ResponseBuilder::<()>::InValidIdResponse()
+            )
+        },
+    }
+}
+
+#[allow(non_snake_case)]
+pub async fn delete_old_facility_pic(db:Data<AppRepo>,facilityID:ObjectId) -> Result<Facilities, AppError> {
+    match db.get_facilities(facilityID).await {
+        Ok(facilities) => {
+            Ok(facilities)
+        },
+        Err(e) =>  Err(e),
     }
 }
 
