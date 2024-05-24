@@ -247,6 +247,7 @@ pub async fn upload_profile(db:Data<StudentRepo>, path:Path<String> , payload:Mu
     }
 
 }
+
 // will check if the use have a profile already then delete old pic
 #[allow(non_snake_case)]
 pub async fn delete_old_profile_pic(db:Data<StudentRepo>,studentId:ObjectId) -> Result<Students, AppError> {

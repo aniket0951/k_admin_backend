@@ -5,7 +5,7 @@ use bson::{doc, document, oid::ObjectId, Document};
 use futures::TryStreamExt;
 use mongodb::{options::{self, IndexOptions}, results::{DeleteResult, InsertOneResult, UpdateResult}, Collection, Database, IndexModel, error::ErrorKind};
 
-use crate::{dto::app_dto::{CreateBranchDTO, CreateCourseDTO}, helper::app_errors::AppError, models::app::{Branches, Courses, Enquiries, Facilities, Fees}, StudentRepo};
+use crate::{dto::app_dto::{CreateBranchDTO, CreateCourseDTO, CreateFacilities}, helper::app_errors::AppError, models::app::{Branches, Courses, Enquiries, Facilities, Fees}, StudentRepo};
 
 use super::events_repo::EventRepo;
 
@@ -348,6 +348,41 @@ impl AppRepo {
         Ok(facilities)
     }
 
+    pub async fn update_facilities(&self, facilityID:ObjectId, facility:CreateFacilities, isImage:bool) -> Result<UpdateResult, AppError> {
+        let mut update = doc! {};
+        println!("IS Image URL  : {:?} and tag is {:?}", facility.image_url, isImage);
+        if isImage{
+            update = doc! {
+                "$set": {
+                    "imageUrl":facility.image_url,
+                    "updated_at":bson::DateTime::now()
+                }
+            }
+        }else {
+            update = doc! {
+                "$set": {
+                    "title": facility.title,
+                    "description":facility.description,
+                    "updated_at":bson::DateTime::now()
+                }
+            };
+        }
+        
+
+        match self.facilities_col.update_one(doc! {"_id":facilityID}, update, None).await {
+            Ok(result) => Ok(result),
+            Err(e) => {
+                Err(AppError::CustomError(e.to_string()))
+            },
+        }
+    }
+
+    pub async fn delete_facility(&self, facilityId:ObjectId) -> Result<DeleteResult, AppError> {
+        match self.facilities_col.delete_one(doc! { "_id":facilityId }, None).await {
+            Ok(result) => Ok(result),
+            Err(e) => Err(AppError::CustomError(e.to_string())),
+        }
+    }
 
     // ------------------------------- ENQUIRY ------------------------------------- //
     pub async fn add_enquiry(&self, enquiry:Enquiries) -> Result<InsertOneResult, AppError> {
