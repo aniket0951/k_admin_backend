@@ -201,15 +201,20 @@ pub struct FacilitiesDTO {
 impl FacilitiesDTO {
     
     pub fn init(facilities:Facilities) -> Self {
-        let imgUrl = facilities.imageUrl.as_ref().map(|sl| sl.to_string());;
-        Self {
+       let mut f =  Self {
             id: facilities.id.unwrap().to_hex(),
             title: facilities.title,
             description: facilities.description,
-            imageUrl: imgUrl,
+            imageUrl: None,
             created_at: facilities.created_at.to_string(),
             updated_at: facilities.updated_at.to_string(),
-        }
+        };
+
+        if !facilities.imageUrl.is_none() {
+            f.imageUrl = Some(format!("http://192.168.0.119:8000{}",facilities.imageUrl.unwrap().to_string()))
+        };
+
+        f
     }
 }
 #[derive(Serialize,Deserialize)]

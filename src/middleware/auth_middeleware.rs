@@ -100,7 +100,8 @@ where
 #[allow(non_snake_case)]
 fn isStatic(path:String) -> bool {
 
-    if path.contains("add-student") || path.contains("/static") || path.contains("/student/upload-profile") || path == "/api/login" || path.contains("/guest-access") || path.contains("student/login") {
+    if path.contains("add-student") || path.contains("/static") || path.contains("/student/upload-profile") || path == "/api/login" || path.contains("/guest-access") || path.contains("student/login")
+    || path.contains("uploade_facility_image") {
         return true
     }
 
