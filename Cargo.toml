@@ -32,8 +32,9 @@ sanitize-filename = "0.5.0"
 rand = "0.8"
 
 
+
 [dependencies.mongodb]
 static-files = "0.2.1"
 version = "2.2.0"
 default-features = false
-features = ["async-std-runtime"]
+features = ["async-std-runtime", "sync"]

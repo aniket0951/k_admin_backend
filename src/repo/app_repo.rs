@@ -224,7 +224,7 @@ impl AppRepo {
             .sort(doc! { "updated_at": -1})
             .build();
 
-        let mut cursor = match self.course_col.find( None, opt).await {
+        let mut cursor = match self.course_col.find( doc! { "is_active": true}, opt).await {
             Ok(cursor) => cursor,
             Err(e) => return Err(AppError::CustomError(e.to_string())),
         };
@@ -420,6 +420,12 @@ impl AppRepo {
         Ok(enquires)
     }
 
+    pub async fn delete_enquiries(&self, enquiryID:ObjectId) -> Result<DeleteResult, AppError> {
+        match self.enquiry_col.delete_one(doc! { "_id": enquiryID }, None).await {
+            Ok(result) => Ok(result),
+            Err(e) => Err(AppError::CustomError(e.to_string())),
+        }
+    }
 
 
 }

@@ -9,6 +9,7 @@ pub mod service;
 pub mod config;
 pub mod helper;
 pub mod middleware;
+mod mongoRepo;
 use crate::repo::app_repo::AppRepo;
 use crate::repo::events_repo::EventRepo;
 use crate::repo::user_repo::*;
@@ -32,6 +33,7 @@ async fn main() -> std::io::Result<()> {
         },
     };
 
+
     let db_user = UserRepo::init(db.clone()).await;
     let studentRepo = StudentRepo::init(db.clone());
     let eventRepo = EventRepo::init(db.clone());
@@ -40,6 +42,7 @@ async fn main() -> std::io::Result<()> {
     let db_event = Data::new(EventRepo::init(db.clone()));
     let appRepo = AppRepo::init(db, studentRepo, eventRepo).await;
     let db_app = Data::new(appRepo);
+
 
     println!("🚀 Server started successfully!");
 
@@ -55,8 +58,8 @@ async fn main() -> std::io::Result<()> {
             .service(event_router())
             .service(student_router())
             .service(user_router())
-            .wrap(middleware::auth_middeleware::Authentication)
             .wrap(Cors::permissive())
+            .wrap(middleware::auth_middeleware::Authentication)
             .wrap(Logger::default())
             
     })

@@ -3,6 +3,8 @@ use serde::de::{self, Visitor};
 use crate::models::app::{Branches, Courses, Enquiries, Facilities, Fees};
 use std::fmt::{self};
 use validator::Validate;
+use chrono::prelude::*;
+
 
 #[derive(Serialize, Deserialize)]
 pub struct CreateBranchDTO{
@@ -241,6 +243,9 @@ pub struct EnquiriesDTO {
 impl EnquiriesDTO {
     
     pub fn init(enquire:Enquiries) -> Self {
+        let date_str = enquire.created_at.to_string();
+        let date_only = &date_str[..19];
+
         Self {
             id: enquire.id.unwrap().to_string(),
             name: enquire.name,
@@ -248,7 +253,7 @@ impl EnquiriesDTO {
             contact: enquire.contact,
             subject: enquire.subject,
             message: enquire.message,
-            created_at: enquire.created_at.to_string(),
+            created_at: date_only.to_string(),
             updated_at: enquire.updated_at.to_string()
         }
     }

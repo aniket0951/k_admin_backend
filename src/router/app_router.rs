@@ -40,8 +40,7 @@ pub fn app_router() -> actix_web::Scope {
         // enquiries
         .route("/add_enquiry", web::post().to(add_enquiry))
         .route("/list_enquiry", web::get().to(list_enquires))
-
-
+        .route("/delete_enquiry/{path}", web::delete().to(delete_enquiry))
         
         
 }

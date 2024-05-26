@@ -222,11 +222,11 @@ pub async fn guest_access_token() -> impl Responder {
     struct GeustUser {
         pub name:String,
         pub userType:String,
-    };
+    }
 
     let guestUser = GeustUser{
         name: String::from("Guest"),
-        userType: String::from("Guest"),
+        userType: String::from("GUEST"),
     };
 
     let accessToken = jwt_service::JwtService::GenerateToken(&guestUser);
@@ -900,6 +900,38 @@ pub async fn list_enquires(db:Data<AppRepo>) -> impl Responder {
         },
     }
 }
+#[allow(non_snake_case)]
+pub async fn delete_enquiry(db:Data<AppRepo>, path:Path<String>) -> impl Responder {
+    match ObjectId::parse_str(path.into_inner()) {
+        Ok(objId) => {
+            match db.delete_enquiries(objId).await {
+                Ok(result) => {
+                    if result.deleted_count == 0 {
+                        return HttpResponse::NotFound().json(
+                            ResponseBuilder::<()>::FailedResponse(AppError::DataNotFoundError.to_string())
+                        );
+                    }
 
+                    HttpResponse::Ok().json(
+                        ResponseBuilder::<()>::SuccessResponse(
+                            Messages::DataDeleteSucess.to_string(),
+                            None
+                        )
+                    )
+                },
+                Err(err) => {
+                    HttpResponse::BadRequest().json(
+                        ResponseBuilder::<()>::FailedResponse(err.to_string())
+                    )
+                },
+            }
+        },
+        Err(_) =>{
+            HttpResponse::BadRequest().json(
+                ResponseBuilder::<()>::InValidIdResponse()
+            )
+        },
+    }
+}
 
 
