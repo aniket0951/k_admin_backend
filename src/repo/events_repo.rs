@@ -1,3 +1,5 @@
+use core::sync;
+
 use bson::{ doc, oid::ObjectId, Document };
 use futures::TryStreamExt;
 use mongodb::{
@@ -5,12 +7,13 @@ use mongodb::{
     results::{ DeleteResult, InsertOneResult, UpdateResult },
     Collection,
     Database,
+    sync::Collection as syncCollection
 };
 
 use crate::{
     dto::event_dto::UpdateEventDTO,
     helper::app_errors::AppError,
-    models::events::{ Events, FileData },
+    models::events::{ Events, FileData }, mongoRepo::mongorepos::MongoRepo,
 };
 
 pub struct EventRepo {
@@ -21,6 +24,8 @@ pub struct EventRepo {
 impl EventRepo {
     pub fn init(db: Database) -> Self {
         let event_col = db.collection("events");
+        
+
         EventRepo { event_col }
     }
 

@@ -45,9 +45,7 @@ where
 
 
     fn call(&self, req: ServiceRequest) -> Self::Future {
-        // if !isStatic(req.path().to_string()) {
 
-        // }
         if !isStatic(req.path().to_string())  {
 
             let verify = req.headers().get("Authorization");

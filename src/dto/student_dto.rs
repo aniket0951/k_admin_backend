@@ -57,7 +57,7 @@ where
             E: de::Error,
         {
             match value {
-                "Off_White" | "OffWhite" => Ok(StudentLevels::OFFWHITE),
+                "Off_White" | "OffWhite" | "offwhite" => Ok(StudentLevels::OFFWHITE),
                 "yellow" => Ok(StudentLevels::YELLOW),
                 "orange" => Ok(StudentLevels::ORANGE),
                 "green" => Ok(StudentLevels::GREEN),

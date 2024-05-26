@@ -1,6 +1,6 @@
 use actix_web::web;
 
-use crate::service::event_service::*;
+use crate::{dto::event_dto::CreateEventDTO, service::event_service::*};
 
 
 pub fn event_router() -> actix_web::Scope {
