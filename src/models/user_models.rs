@@ -19,6 +19,7 @@ pub struct Users {
 }
 
 
+
 impl Users {
     pub fn to_docmunet(&self) -> Result<Document, mongodb::bson::ser::Error> {
         bson::to_document(self)

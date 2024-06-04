@@ -224,7 +224,7 @@ impl AppRepo {
             .sort(doc! { "updated_at": -1})
             .build();
 
-        let mut cursor = match self.course_col.find( doc! { "is_active": true}, opt).await {
+        let mut cursor = match self.course_col.find( None, opt).await {
             Ok(cursor) => cursor,
             Err(e) => return Err(AppError::CustomError(e.to_string())),
         };
