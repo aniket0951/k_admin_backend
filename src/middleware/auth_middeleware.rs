@@ -99,7 +99,7 @@ where
 fn isStatic(path:String) -> bool {
 
     if path.contains("add-student") || path.contains("/static") || path.contains("/student/upload-profile") || path == "/api/login" || path.contains("/guest-access") || path.contains("student/login")
-    || path.contains("uploade_facility_image") {
+    || path.contains("uploade_facility_image") || path.contains("user") {
         return true
     }
 

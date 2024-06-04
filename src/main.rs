@@ -58,8 +58,8 @@ async fn main() -> std::io::Result<()> {
             .service(event_router())
             .service(student_router())
             .service(user_router())
-            .wrap(Cors::permissive())
             .wrap(middleware::auth_middeleware::Authentication)
+            .wrap(Cors::permissive())
             .wrap(Logger::default())
             
     })
